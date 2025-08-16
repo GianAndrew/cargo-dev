@@ -1,12 +1,9 @@
 import axios from 'axios';
-import { useState } from 'react';
 
 const BASE_URL = 'http://192.168.100.57:3000';
 
 const useAxios = () => {
-	const token_session = localStorage.getItem('token');
-
-	const [token] = useState<string | null>(token_session ? JSON.parse(token_session) : null);
+	const token_session = sessionStorage.getItem('token');
 
 	const api = axios.create({
 		baseURL: BASE_URL,
@@ -16,8 +13,8 @@ const useAxios = () => {
 	});
 
 	api.interceptors.request.use((config) => {
-		if (token) {
-			config.headers.Authorization = `Bearer ${token}`;
+		if (token_session) {
+			config.headers.Authorization = `Bearer ${token_session}`;
 		}
 		return config;
 	});

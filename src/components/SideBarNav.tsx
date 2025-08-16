@@ -59,7 +59,7 @@ const SideBarNav = () => {
 							<span className="hidden sm:block text-slate-900 mx-2 text-sm font-medium">{item.label}</span>
 						</Link>
 					))}
-					<button onClick={confirmLogOut} className="flex justify-center sm:justify-start items-center py-3 transition-colors duration-300 transform rounded-lg ">
+					<button onClick={confirmLogOut} className="flex justify-center sm:justify-start items-center py-3 transition-colors duration-300 transform rounded-lg cursor-pointer">
 						<LogOut size={18} className="text-slate-900" />
 						<span className="hidden sm:block text-slate-900 mx-2 text-sm font-medium">Log out</span>
 					</button>

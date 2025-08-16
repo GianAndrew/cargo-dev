@@ -1,16 +1,15 @@
 import { RequireAuth } from '@/components/RequireAuth';
 
+import LayoutNavBar from '@/components/LayoutNavBar';
 import Auth from '@/pages/Auth';
-import Home from '@/pages/Home';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
-import Dashboard from '@/pages/Dashboard';
-import Users from '@/pages/Users';
 import Bookings from '@/pages/Bookings';
 import Complaints from '@/pages/Complaints';
-import LayoutNavBar from '@/components/LayoutNavBar';
-import UserDetails from '@/pages/UserDetails';
+import Dashboard from '@/pages/Dashboard';
+import Home from '@/pages/Home';
 import Rentals from '@/pages/Rentals';
+import Users from '@/pages/Users';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
 
 const queryClient = new QueryClient();
 
@@ -29,10 +28,7 @@ const App = () => {
 					<Route element={<LayoutNavBar />}>
 						<Route path="/dashboard" element={<Dashboard />} />
 						<Route path="/rentals" element={<Rentals />} />
-						<Route path="/users">
-							<Route index element={<Users />} />
-							<Route path=":id" element={<UserDetails />} />
-						</Route>
+						<Route path="/users" element={<Users />} />
 						<Route path="/bookings" element={<Bookings />} />
 						<Route path="/complaints" element={<Complaints />} />
 					</Route>

@@ -64,16 +64,16 @@ const Dashboard = () => {
 				{/* Dashboard Header */}
 				<div>
 					<div className="my-2 ">
-						<h1 className="text-lg font-medium text-slate-700">Dashboard</h1>
+						<h1 className="text-lg font-medium text-slate-900">Dashboard</h1>
 					</div>
-					<div className="w-full grid grid-cols-2 lg:grid-cols-4 gap-2">
+					<div className="grid rounded-lg grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
 						<div className="bg-white w-full rounded-xl p-5">
 							<div className="flex flex-col md:flex-row justify-center md:justify-start items-center gap-2">
 								<Users size={24} className="text-slate-800" />
 								<p className="text-sm md:text-md text-slate-900 font-medium">Rentee</p>
 							</div>
 							<div className="mt-2 flex justify-center md:justify-start items-center">
-								<span className="text-2xl md:text-4xl font-semibold text-slate-900">{dashboard_query.data?.rentee.length || 0}</span>
+								<span className="text-xl md:text-2xl font-semibold text-slate-900">{dashboard_query.data?.rentee.length || 0}</span>
 							</div>
 						</div>
 						<div className="bg-white w-full rounded-xl p-5">
@@ -82,7 +82,7 @@ const Dashboard = () => {
 								<p className="text-sm md:text-md text-slate-900 font-medium">Owner</p>
 							</div>
 							<div className="mt-2 flex justify-center md:justify-start items-center">
-								<span className="text-2xl md:text-4xl font-semibold text-slate-900">{dashboard_query.data?.owner.length || 0}</span>
+								<span className="text-xl md:text-2xl font-semibold text-slate-900">{dashboard_query.data?.owner.length || 0}</span>
 							</div>
 						</div>
 						<div className="bg-white w-full rounded-xl p-5">
@@ -91,7 +91,7 @@ const Dashboard = () => {
 								<p className="text-sm md:text-md text-slate-900 font-medium">Cars</p>
 							</div>
 							<div className="mt-2 flex justify-center md:justify-start items-center">
-								<span className="text-2xl md:text-4xl font-semibold text-slate-900">{dashboard_query.data?.cars.length || 0}</span>
+								<span className="text-xl md:text-2xl font-semibold text-slate-900">{dashboard_query.data?.cars.length || 0}</span>
 							</div>
 						</div>
 						<div className="bg-white w-full rounded-xl p-5">
@@ -101,7 +101,7 @@ const Dashboard = () => {
 								<p className="text-sm md:text-md text-slate-900 font-medium">Bookings</p>
 							</div>
 							<div className="mt-2 flex justify-center md:justify-start items-center">
-								<span className="text-2xl md:text-4xl font-semibold text-slate-900">{dashboard_query.data?.bookings.length || 0}</span>
+								<span className="text-xl md:text-2xl font-semibold text-slate-900">{dashboard_query.data?.bookings.length || 0}</span>
 							</div>
 						</div>
 					</div>
@@ -110,7 +110,7 @@ const Dashboard = () => {
 				{/* recent bookings */}
 				<div>
 					<div className="my-2">
-						<h1 className="text-sm font-medium text-slate-500">Recent Bookings</h1>
+						<h1 className="text-sm font-medium text-slate-700">Recent Bookings</h1>
 					</div>
 					<div className="mt-2">
 						{dashboard_query.data?.bookings.length === 0 ? (
@@ -120,7 +120,7 @@ const Dashboard = () => {
 							</div>
 						) : (
 							dashboard_query.data?.bookings.slice(0, 5).map((booking: TBookings) => (
-								<div key={booking.id} className="flex flex-col md:flex-row items-center gap-5 bg-white rounded-xl p-4 mb-2 hover:bg-slate-100">
+								<div key={booking.id} className="flex flex-col md:flex-row items-center gap-5 bg-white rounded-lg p-4 mb-2 hover:bg-slate-100">
 									<img
 										src={`${SPACES_ENDPOINT}/${booking.car.car_images[0].file_folder}/${booking.car.car_images[0].image_name}`}
 										alt="car image"
@@ -129,7 +129,7 @@ const Dashboard = () => {
 										className="rounded-lg w-full md:max-w-20 md:w-1/4 object-cover"
 									/>
 									<div className="flex flex-col md:flex-row justify-between md:items-center w-full gap-2">
-										<div className="flex-1">
+										<div className="flex-1 flex flex-col gap-1	">
 											<p className="text-xs font-medium text-slate-900 capitalize">
 												{booking.car.car_brand} {booking.car.car_model} {booking.car.car_year}
 											</p>
@@ -137,13 +137,13 @@ const Dashboard = () => {
 										</div>
 										<div className="flex-1">
 											<span className="text-xs font-normal text-slate-500">Renter name:</span>
-											<p className="text-sm font-medium text-slate-900 capitalize">
+											<p className="text-xs font-medium text-slate-900 capitalize">
 												{booking.user.first_name} {booking.user.last_name}
 											</p>
 										</div>
 										<div className="flex-1">
 											<span className="text-xs font-normal text-slate-500">Date:</span>
-											<p className="text-xs font-medium text-slate-500">{dayjs(booking.created_at).format('MMM D, YYYY h:mm A')}</p>
+											<p className="text-xs font-medium text-slate-900">{dayjs(booking.created_at).format('MMM D, YYYY h:mm A')}</p>
 										</div>
 									</div>
 								</div>
