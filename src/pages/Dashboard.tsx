@@ -119,17 +119,22 @@ const Dashboard = () => {
 								<p className="text-sm text-slate-500 font-medium">No recent bookings found.</p>
 							</div>
 						) : (
-							dashboard_query.data?.bookings.slice(0, 5).map((booking: TBookings) => (
-								<div key={booking.id} className="flex flex-col md:flex-row items-center gap-5 bg-white rounded-lg p-4 mb-2 hover:bg-slate-100">
-									<img
-										src={`${SPACES_ENDPOINT}/${booking.car.car_images[0].file_folder}/${booking.car.car_images[0].image_name}`}
-										alt="car image"
-										height={80}
-										width={80}
-										className="rounded-lg w-full md:max-w-20 md:w-1/4 object-cover"
-									/>
+							dashboard_query.data?.bookings.slice(0, 10).map((booking: TBookings) => (
+								<div key={booking.id} className="flex flex-col md:flex-row items-center gap-5 bg-white rounded-lg py-3 px-4 mb-1.5 hover:bg-slate-100">
+									{booking.car.car_images[0].file_folder && booking.car.car_images[0].image_name ? (
+										<img
+											src={`${SPACES_ENDPOINT}/${booking.car.car_images[0].file_folder}/${booking.car.car_images[0].image_name}`}
+											alt="car image"
+											height={80}
+											width={80}
+											className="rounded-md w-full md:max-w-10 md:w-1/4 object-cover"
+										/>
+									) : (
+										<img src={`/images/default_image.jpg`} alt="dp" className="w-full md:max-w-10 md:w-1/4 rounded-md object-cover" />
+									)}
+
 									<div className="flex flex-col md:flex-row justify-between md:items-center w-full gap-2">
-										<div className="flex-1 flex flex-col gap-1	">
+										<div className="flex-1 flex flex-col gap-0.5">
 											<p className="text-xs font-medium text-slate-900 capitalize">
 												{booking.car.car_brand} {booking.car.car_model} {booking.car.car_year}
 											</p>

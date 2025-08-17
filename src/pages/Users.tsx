@@ -2,7 +2,7 @@ import { SPACES_ENDPOINT } from '@/constant/aws';
 import { useAxios } from '@/hooks/useAxios';
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
-import { ChevronRight, Frown } from 'lucide-react';
+import { ChevronRight, Frown, Search } from 'lucide-react';
 import { useState } from 'react';
 
 type User = {
@@ -21,6 +21,8 @@ type User = {
 
 const Users = () => {
 	const api = useAxios();
+
+	const [search, setSearch] = useState<string>('');
 
 	const [openUserDetailsModal, setOpenUserDetailModal] = useState(false);
 	const [userDetails, setUserDetails] = useState({
@@ -54,6 +56,10 @@ const Users = () => {
 		setOpenUserDetailModal(false);
 	};
 
+	const filteredUsers = (user: User) => {
+		return user.first_name.toLowerCase().includes(search.toLowerCase()) || user.last_name.toLowerCase().includes(search.toLowerCase());
+	};
+
 	if (users_query.isPending) {
 		return (
 			<>
@@ -81,20 +87,31 @@ const Users = () => {
 	return (
 		<>
 			<div className="bg-slate-50 min-h-screen p-5 w-full">
-				<div className="my-2 ">
-					<h1 className="text-lg font-medium text-slate-700">{users_query.data?.length || 0} Users</h1>
-					<p className="text-sm font-normal text-slate-500">Manage renter accounts and their details</p>
+				<div className="my-2 flex justify-between items-center">
+					<div>
+						<h1 className="text-lg font-medium text-slate-700">{users_query.data?.length || 0} Users</h1>
+						<p className="text-sm font-normal text-slate-500">Manage renter accounts and their details</p>
+					</div>
+					<div className="flex items-center gap-2 w-full lg:max-w-60 rounded-full py-2.5 px-3 bg-white">
+						<Search size={14} className="text-slate-400" />
+						<input
+							type="text"
+							placeholder="Enter user name"
+							className="w-full bg-white text-xs font-normal text-slate-700 placeholder:text-slate-400 outline-0"
+							onChange={(e) => setSearch(e.target.value)}
+						/>
+					</div>
 				</div>
 
 				<div className="flex-1 mt-5">
-					{users_query.data?.length === 0 ? (
+					{users_query.data?.filter(filteredUsers).length === 0 ? (
 						<div className="h-full w-full bg-white rounded-xl p-5 flex flex-col justify-center items-center gap-2">
 							<Frown size={30} className="text-slate-500" />
 							<p className="text-sm text-slate-500 font-medium">No users found.</p>
 						</div>
 					) : (
 						<>
-							{users_query.data?.map((user: User) => (
+							{users_query.data?.filter(filteredUsers).map((user: User) => (
 								<div
 									key={user.id}
 									className="w-full flex justify-start items-center py-2.5 px-4 bg-white rounded-lg my-1.5 overflow-hidden hover:bg-slate-100"
@@ -132,6 +149,7 @@ const Users = () => {
 				</div>
 			</div>
 
+			{/* User Details Modal */}
 			{openUserDetailsModal && (
 				<div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.5)]">
 					<div className="bg-white rounded-2xl shadow-lg p-6 w-full max-w-md mx-2">

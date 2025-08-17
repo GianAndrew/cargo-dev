@@ -1,14 +1,15 @@
 import { useAuth } from '@/hooks/useAuth';
-import { Book, CarFront, House, Info, LogOut, MessageCircleWarning, Users } from 'lucide-react';
+import { Book, CarFront, House, Info, LogOut, MessageCircleWarning, SquareUser, Users } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 const NAV_ITEMS = [
-	{ icon: <House size={18} className="text-slate-900" />, label: 'Dashboard', to: '/dashboard' },
-	{ icon: <Users size={18} className="text-slate-900" />, label: 'Users', to: '/users' },
-	{ icon: <CarFront size={18} className="text-slate-900" />, label: 'Rentals', to: '/rentals' },
-	{ icon: <Book size={18} className="text-slate-900" />, label: 'Bookings', to: '/bookings' },
-	{ icon: <MessageCircleWarning size={18} className="text-slate-900" />, label: 'Complaints', to: '/complaints' },
+	{ icon: <House size={18} className="text-slate-700" />, label: 'Dashboard', to: '/dashboard' },
+	{ icon: <Book size={18} className="text-slate-700" />, label: 'Bookings', to: '/bookings' },
+	{ icon: <Users size={18} className="text-slate-700" />, label: 'Users', to: '/users' },
+	{ icon: <SquareUser size={18} className="text-slate-700" />, label: 'Rentals', to: '/rentals' },
+	{ icon: <CarFront size={18} className="text-slate-700" />, label: 'Vehicles', to: '/vehicles' },
+	{ icon: <MessageCircleWarning size={18} className="text-slate-700" />, label: 'Complaints', to: '/complaints' },
 ];
 
 const SideBarNav = () => {
@@ -45,7 +46,7 @@ const SideBarNav = () => {
 	};
 	return (
 		<>
-			<div className="w-full flex flex-col max-w-20 sm:max-w-52 min-h-screen px-5 py-8 overflow-hidden bg-white">
+			<div className="w-full flex flex-col max-w-20 sm:max-w-52 h-screen min-h-screen px-5 py-8 overflow-hidden bg-white">
 				<div className="w-full justify-center flex items-center">
 					<Link to={'/dashboard'}>
 						<img src={'/logo/cargo-logo-black.png'} alt="Logo" width={125} height={125} />
@@ -56,12 +57,12 @@ const SideBarNav = () => {
 					{NAV_ITEMS.map((item) => (
 						<Link key={item.label} className="flex justify-center sm:justify-start items-center py-3 transition-colors duration-300 transform rounded-lg" to={item.to}>
 							{item.icon}
-							<span className="hidden sm:block text-slate-900 mx-2 text-sm font-medium">{item.label}</span>
+							<span className="hidden sm:block text-slate-700 mx-2 text-sm font-medium">{item.label}</span>
 						</Link>
 					))}
 					<button onClick={confirmLogOut} className="flex justify-center sm:justify-start items-center py-3 transition-colors duration-300 transform rounded-lg cursor-pointer">
-						<LogOut size={18} className="text-slate-900" />
-						<span className="hidden sm:block text-slate-900 mx-2 text-sm font-medium">Log out</span>
+						<LogOut size={18} className="text-slate-700" />
+						<span className="hidden sm:block text-slate-700 mx-2 text-sm font-medium">Log out</span>
 					</button>
 				</div>
 			</div>
