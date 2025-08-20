@@ -80,6 +80,10 @@ const Bookings = () => {
 	const [openBookingDetailsModal, setOpenBookingDetailModal] = useState(false);
 	const [selectedBooking, setSelectedBooking] = useState<TBooking | null>(null);
 
+	// pagination state
+	const [page, setPage] = useState<number>(1);
+	const [pageSize] = useState<number>(15); // change page size as needed
+
 	const bookings_query = useQuery({
 		queryKey: ['bookings'],
 		queryFn: async () => {
@@ -87,6 +91,12 @@ const Bookings = () => {
 			return response.data;
 		},
 	});
+
+	// derived pagination values
+	const total = bookings_query.data?.length ?? 0;
+	const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+	const paginated = bookings_query.data ? bookings_query.data.slice((page - 1) * pageSize, page * pageSize) : [];
 
 	const handleSelectBooking = (booking: TBooking) => {
 		setSelectedBooking(booking);
@@ -129,7 +139,7 @@ const Bookings = () => {
 					<p className="text-sm font-normal text-slate-500">Manage bookings and transactions.</p>
 				</div>
 				<div className="flex-1 mt-5">
-					{bookings_query.data?.map((b) => {
+					{paginated.map((b) => {
 						const rentalPic = `${SPACES_ENDPOINT}/${b.car.owner.profile_file_folder}/${b.car.owner.profile_pic_key}`;
 						const renterName = `${b.user.first_name} ${b.user.last_name}`;
 						const carUnit = `${b.car.car_brand} ${b.car.car_model} (${b.car.car_year})`;
@@ -181,12 +191,52 @@ const Bookings = () => {
 										</div>
 									</div>
 								</div>
-								<button className="p-1.5 rounded-full bg-slate-200 cursor-pointer" onClick={() => handleSelectBooking(b)}>
+								<button
+									className="p-1.5 rounded-full bg-slate-200 cursor-pointer"
+									onClick={(e) => {
+										e.stopPropagation();
+										handleSelectBooking(b);
+									}}
+								>
 									<ChevronRight size={16} className="text-slate-400" />
 								</button>
 							</div>
 						);
 					})}
+				</div>
+				<div className="flex flex-col md:flex-row items-start md:items-center justify-between mt-4 gap-2">
+					<div className="text-xs text-slate-500">
+						Showing {total === 0 ? 0 : (page - 1) * pageSize + 1} - {Math.min(page * pageSize, total)} of {total}
+					</div>
+					<div className="flex items-center gap-2">
+						<button className="px-3 py-1 text-xs rounded-md bg-white disabled:opacity-50" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
+							Previous
+						</button>
+
+						{/* simple page numbers */}
+						<div className="flex items-center gap-1">
+							{Array.from({ length: totalPages }).map((_, i) => {
+								const pageNumber = i + 1;
+								return (
+									<button
+										key={pageNumber}
+										className={`px-3 py-1 text-xs rounded-md ${pageNumber === page ? 'bg-slate-900 text-white' : 'bg-white'}`}
+										onClick={() => setPage(pageNumber)}
+									>
+										{pageNumber}
+									</button>
+								);
+							})}
+						</div>
+
+						<button
+							className="px-3 py-1 text-xs rounded-md bg-white disabled:opacity-50"
+							disabled={page >= totalPages}
+							onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+						>
+							Next
+						</button>
+					</div>
 				</div>
 			</div>
 			{openBookingDetailsModal && (
@@ -273,7 +323,7 @@ const Bookings = () => {
 								</div>
 								<div className="py-2 px-2">
 									<p className="text-slate-500 text-xs font-medium">Booking Details</p>
-									<div className="flex flex-col gap-4 mt-4">
+									<div className="flex flex-col gap-3 mt-4">
 										<div className="flex items-center justify-between">
 											<span className="text-xs text-slate-500 font-normal">Vehicle:</span>
 											<span className="text-xs text-slate-700 font-medium capitalize">

@@ -58,8 +58,10 @@ const DocumentStatus = (status: IVehicle['status']) => {
 	switch (status) {
 		case 'PENDING':
 			return { bgclass: 'bg-amber-100', textclass: 'text-amber-500', value: 'Pending' };
-		case 'APPROVED':
+		case 'AVAILABLE':
 			return { bgclass: 'bg-emerald-100', textclass: 'text-emerald-500', value: 'Approved' };
+		case 'ARCHIVED':
+			return { bgclass: 'bg-slate-200', textclass: 'text-slate-500', value: 'Archived' };
 		case 'REJECTED':
 			return { bgclass: 'bg-rose-100', textclass: 'text-rose-500', value: 'Rejected' };
 		default:
@@ -243,9 +245,9 @@ const VehicleDetails = () => {
 						<div className="rounded-lg p-4 mt-2 bg-slate-50">
 							<p className="text-xs text-slate-500 font-medium">Documents</p>
 							<div className="flex justify-between items-center mt-2">
-								<div className={`rounded-full flex items-center py-1.5 px-3 ${DocumentStatus(vehicle_query.data?.documents?.status ?? '').bgclass}`}>
-									<span className={`text-xs font-normal ${DocumentStatus(vehicle_query.data?.documents?.status ?? '').textclass}`}>
-										{DocumentStatus(vehicle_query.data?.documents?.status ?? '').value}
+								<div className={`rounded-full flex items-center py-1.5 px-3 ${DocumentStatus(vehicle_query.data?.status ?? '').bgclass}`}>
+									<span className={`text-xs font-medium ${DocumentStatus(vehicle_query.data?.status ?? '').textclass}`}>
+										{DocumentStatus(vehicle_query.data?.status ?? '').value}
 									</span>
 								</div>
 								<button className="flex items-center bg-slate-900 rounded-full py-2 px-3 cursor-pointer" onClick={openDocumentModalBtn}>
@@ -260,32 +262,44 @@ const VehicleDetails = () => {
 						<div className="mt-2 bg-slate-50 p-4 rounded-lg">
 							<p className="text-sm font-medium text-slate-500">Coding days</p>
 							<div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2 place-content-center">
-								{vehicle_query.data?.car_coding.map((code: CarCoding) => (
-									<p key={code.id} className="capitalize text-center font-medium text-xs text-amber-700 bg-amber-200 rounded-full px-3 py-1.5">
-										{code.coding_day_value}
-									</p>
-								))}
+								{vehicle_query.data?.car_coding.length === 0 ? (
+									<p className="cols-span-4 text-center text-xs font-medium text-slate-500">No coding days available</p>
+								) : (
+									vehicle_query.data?.car_coding.map((code: CarCoding) => (
+										<p key={code.id} className="capitalize text-center font-medium text-xs text-amber-700 bg-amber-200 rounded-full px-3 py-1.5">
+											{code.coding_day_value}
+										</p>
+									))
+								)}
 							</div>
 						</div>
 						<div className="mt-2 bg-slate-50 p-4 rounded-lg">
 							<p className="text-sm font-medium text-slate-500">Features</p>
 							<div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2 place-content-center">
-								{vehicle_query.data?.car_features.map((ftrs: CarFeatures) => (
-									<p key={ftrs.id} className="capitalize text-center text-xs font-medium text-slate-700 bg-slate-200 rounded-full px-3 py-1.5">
-										{ftrs.feature_name}
-									</p>
-								))}
+								{vehicle_query.data?.car_features.length === 0 ? (
+									<p className="cols-span-4 text-center text-xs font-medium text-slate-500">No features available</p>
+								) : (
+									vehicle_query.data?.car_features.map((ftrs: CarFeatures) => (
+										<p key={ftrs.id} className="capitalize text-center text-xs font-medium text-slate-700 bg-slate-200 rounded-full px-3 py-1.5">
+											{ftrs.feature_name}
+										</p>
+									))
+								)}
 							</div>
 						</div>
 						<div className="mt-2 bg-slate-50 p-4 rounded-lg">
 							<p className="text-sm font-medium text-slate-500">Rules</p>
 							<div className="grid grid-cols-2 md:grid-cols-2 gap-2 mt-2 place-content-center">
-								{vehicle_query.data?.car_rules.map((rls: CarRules) => (
-									<div className="flex items-center gap-1	" key={rls.id}>
-										<OctagonX size={14} />
-										<p className="capitalize text-start text-xs font-medium text-slate-700">{rls.rule_name}</p>
-									</div>
-								))}
+								{vehicle_query.data?.car_rules.length === 0 ? (
+									<p className="col-span-2 text-center text-xs font-medium text-slate-500">No rules available</p>
+								) : (
+									vehicle_query.data?.car_rules.map((rls: CarRules) => (
+										<div className="flex items-center gap-1	" key={rls.id}>
+											<OctagonX size={14} />
+											<p className="capitalize text-start text-xs font-medium text-slate-700">{rls.rule_name}</p>
+										</div>
+									))
+								)}
 							</div>
 						</div>
 					</div>
@@ -299,43 +313,47 @@ const VehicleDetails = () => {
 							<p className="text-xs text-slate-500">Submit At: {dayjs(vehicle_query.data?.documents?.created_at).format('MMMM D, YYYY h:mm A')}</p>
 						</div>
 						<div className="flex flex-col md:flex-row justify-start items-center gap-2 overflow-x-scroll overflow-y-hidden mt-2">
-							{vehicle_query.data?.documents?.car_document_files.map(
-								(
-									file: {
-										file_folder: string;
-										file_name: string;
-									},
-									index: number
-								) => (
-									<div key={index} className="flex items-center">
-										{file.file_folder && file.file_name ? (
-											<img
-												src={`${SPACES_ENDPOINT}/${file.file_folder}/${file.file_name}`}
-												alt=""
-												className="w-72 h-full object-cover ring-1 ring-slate-100 rounded-md"
-											/>
-										) : (
-											<img src={`/images/default_image.jpg`} alt="" className="w-72 h-full object-cover ring-1 ring-slate-100 rounded-md" />
-										)}
-									</div>
-								)
-							)}
+							{vehicle_query.data?.documents?.car_document_files.length === 0
+								? null
+								: vehicle_query.data?.documents?.car_document_files.map(
+										(
+											file: {
+												file_folder: string;
+												file_name: string;
+											},
+											index: number
+										) => (
+											<div key={index} className="flex items-center">
+												{file.file_folder && file.file_name ? (
+													<img
+														src={`${SPACES_ENDPOINT}/${file.file_folder}/${file.file_name}`}
+														alt=""
+														className="w-72 h-full object-cover ring-1 ring-slate-100 rounded-md"
+													/>
+												) : (
+													<img src={`/images/default_image.jpg`} alt="" className="w-72 h-full object-cover ring-1 ring-slate-100 rounded-md" />
+												)}
+											</div>
+										)
+								  )}
 						</div>
 
-						<div className="flex flex-col md:flex-row items-center my-4 gap-2 rounded-full p-2 bg-slate-100">
-							<button
-								className="w-full text-xs text-slate-50 bg-slate-900 rounded-full py-2 px-3"
-								onClick={() => verdictBtn({ car_id: vehicle_query.data?.id, document_id: vehicle_query.data?.documents?.id, verdict: 'APPROVED' })}
-							>
-								Approve
-							</button>
-							<button
-								className="w-full text-xs text-slate-900 bg-slate-50 rounded-full py-2 px-3"
-								onClick={() => verdictBtn({ car_id: vehicle_query.data?.id, document_id: vehicle_query.data?.documents?.id, verdict: 'REJECTED' })}
-							>
-								Reject
-							</button>
-						</div>
+						{vehicle_query.data.status === 'PENDING' && (
+							<div className="flex flex-col md:flex-row items-center my-4 gap-2 rounded-full p-2 bg-slate-100">
+								<button
+									className="w-full text-xs text-slate-50 bg-slate-900 rounded-full py-2 px-3"
+									onClick={() => verdictBtn({ car_id: vehicle_query.data?.id, document_id: vehicle_query.data?.documents?.id, verdict: 'APPROVED' })}
+								>
+									Approve
+								</button>
+								<button
+									className="w-full text-xs text-slate-900 bg-slate-50 rounded-full py-2 px-3"
+									onClick={() => verdictBtn({ car_id: vehicle_query.data?.id, document_id: vehicle_query.data?.documents?.id, verdict: 'REJECTED' })}
+								>
+									Reject
+								</button>
+							</div>
+						)}
 
 						<button className="text-xs font-medium cursor-pointer w-full flex items-center justify-center text-slate-900" onClick={() => setOpenDocumentModal(false)}>
 							Close

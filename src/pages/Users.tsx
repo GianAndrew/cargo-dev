@@ -39,6 +39,10 @@ const Users = () => {
 		created_at: '',
 	});
 
+	// pagination state
+	const [page, setPage] = useState<number>(1);
+	const [pageSize] = useState<number>(15); // change page size as needed
+
 	const users_query = useQuery({
 		queryKey: ['users'],
 		queryFn: async () => {
@@ -59,6 +63,12 @@ const Users = () => {
 	const filteredUsers = (user: User) => {
 		return user.first_name.toLowerCase().includes(search.toLowerCase()) || user.last_name.toLowerCase().includes(search.toLowerCase());
 	};
+
+	// derived pagination values
+	const total = users_query.data?.length ?? 0;
+	const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+	const paginated = users_query.data ? users_query.data.filter(filteredUsers).slice((page - 1) * pageSize, page * pageSize) : [];
 
 	if (users_query.isPending) {
 		return (
@@ -104,14 +114,14 @@ const Users = () => {
 				</div>
 
 				<div className="flex-1 mt-5">
-					{users_query.data?.filter(filteredUsers).length === 0 ? (
+					{paginated.length === 0 ? (
 						<div className="h-full w-full bg-white rounded-xl p-5 flex flex-col justify-center items-center gap-2">
 							<Frown size={30} className="text-slate-500" />
 							<p className="text-sm text-slate-500 font-medium">No users found.</p>
 						</div>
 					) : (
 						<>
-							{users_query.data?.filter(filteredUsers).map((user: User) => (
+							{paginated.map((user: User) => (
 								<div
 									key={user.id}
 									className="w-full flex justify-start items-center py-2.5 px-4 bg-white rounded-lg my-1.5 overflow-hidden hover:bg-slate-100"
@@ -146,6 +156,40 @@ const Users = () => {
 							))}
 						</>
 					)}
+				</div>
+				<div className="flex flex-col md:flex-row items-start md:items-center justify-between mt-4 gap-2">
+					<div className="text-xs text-slate-500">
+						Showing {total === 0 ? 0 : (page - 1) * pageSize + 1} - {Math.min(page * pageSize, total)} of {total}
+					</div>
+					<div className="flex items-center gap-2">
+						<button className="px-3 py-1 text-xs rounded-md bg-white disabled:opacity-50" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
+							Previous
+						</button>
+
+						{/* simple page numbers */}
+						<div className="flex items-center gap-1">
+							{Array.from({ length: totalPages }).map((_, i) => {
+								const pageNumber = i + 1;
+								return (
+									<button
+										key={pageNumber}
+										className={`px-3 py-1 text-xs rounded-md ${pageNumber === page ? 'bg-slate-900 text-white' : 'bg-white'}`}
+										onClick={() => setPage(pageNumber)}
+									>
+										{pageNumber}
+									</button>
+								);
+							})}
+						</div>
+
+						<button
+							className="px-3 py-1 text-xs rounded-md bg-white disabled:opacity-50"
+							disabled={page >= totalPages}
+							onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+						>
+							Next
+						</button>
+					</div>
 				</div>
 			</div>
 

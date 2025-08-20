@@ -44,6 +44,10 @@ const VehiclesPage = () => {
 
 	const [category, setCategory] = useState<string>('all');
 
+	// pagination state
+	const [page, setPage] = useState<number>(1);
+	const [pageSize] = useState<number>(15); // change page size as needed
+
 	const navigate = useNavigate();
 
 	const api = useAxios();
@@ -61,6 +65,11 @@ const VehiclesPage = () => {
 		const matchesSearch = search ? cars.car_brand.toLowerCase().includes(search.toLowerCase()) || cars.car_model?.toLowerCase().includes(search.toLowerCase()) : true;
 		return matchesCategory && matchesSearch;
 	};
+
+	const total = vehicles_query.data?.length ?? 0;
+	const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+	const paginated = vehicles_query.data ? vehicles_query.data?.filter(filteredCars).slice((page - 1) * pageSize, page * pageSize) : [];
 
 	const openVehicleDetails = (vehicle_id: number) => {
 		navigate(`/vehicles/${vehicle_id}`);
@@ -90,7 +99,7 @@ const VehiclesPage = () => {
 		);
 	}
 	return (
-		<div className="bg-slate-50 min-h-screen h-screen p-5 w-full">
+		<div className="bg-slate-50 min-h-screen p-5 w-full">
 			<div className="my-2 flex flex-col md:flex-row justify-between items-start gap-2 ">
 				<div>
 					<h1 className="text-lg font-medium text-slate-700">{vehicles_query.data.filter(filteredCars).length} Vehicles</h1>
@@ -161,13 +170,13 @@ const VehiclesPage = () => {
 
 			<div className="flex-1 mt-5">
 				<div className="h-full w-full py-2 space-y-1.5">
-					{vehicles_query.data.filter(filteredCars).length === 0 ? (
+					{paginated.length === 0 ? (
 						<div className="h-full w-full bg-white rounded-xl p-5 flex flex-col justify-center items-center gap-2">
 							<Frown size={30} className="text-slate-500" />
 							<p className="text-sm text-slate-500 font-medium">No Vehicles found.</p>
 						</div>
 					) : (
-						vehicles_query.data?.filter(filteredCars).map((car: ICar, index: number) => (
+						paginated.map((car: ICar, index: number) => (
 							<div
 								key={`CAR${index}`}
 								className="flex md:items-center justify-between rounded-lg py-2.5 px-4 bg-white hover:bg-slate-50"
@@ -217,6 +226,40 @@ const VehiclesPage = () => {
 							</div>
 						))
 					)}
+					<div className="flex flex-col md:flex-row items-start md:items-center justify-between mt-4 gap-2">
+						<div className="text-xs text-slate-500">
+							Showing {total === 0 ? 0 : (page - 1) * pageSize + 1} - {Math.min(page * pageSize, total)} of {total}
+						</div>
+						<div className="flex items-center gap-2">
+							<button className="px-3 py-1 text-xs rounded-md bg-white disabled:opacity-50" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
+								Previous
+							</button>
+
+							{/* simple page numbers */}
+							<div className="flex items-center gap-1">
+								{Array.from({ length: totalPages }).map((_, i) => {
+									const pageNumber = i + 1;
+									return (
+										<button
+											key={pageNumber}
+											className={`px-3 py-1 text-xs rounded-md ${pageNumber === page ? 'bg-slate-900 text-white' : 'bg-white'}`}
+											onClick={() => setPage(pageNumber)}
+										>
+											{pageNumber}
+										</button>
+									);
+								})}
+							</div>
+
+							<button
+								className="px-3 py-1 text-xs rounded-md bg-white disabled:opacity-50"
+								disabled={page >= totalPages}
+								onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+							>
+								Next
+							</button>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

@@ -119,6 +119,10 @@ const OwnerDetails = () => {
 
 	const [openDocumentModal, setOpenDocumentModal] = useState<boolean>(false);
 
+	// pagination state
+	const [page, setPage] = useState<number>(1);
+	const [pageSize] = useState<number>(15); // change page size as needed
+
 	const api = useAxios();
 
 	const queryClient = useQueryClient();
@@ -163,6 +167,10 @@ const OwnerDetails = () => {
 		setOpenDocumentModal(true);
 	};
 
+	const openVehicleDetails = (vehicle_id: number) => {
+		navigate(`/vehicles/${vehicle_id}`);
+	};
+
 	const verdictBtn = (data: { owner_id: number | undefined; document_id: number | undefined; verdict: 'APPROVED' | 'REJECTED' }) => {
 		verdict_mutation.mutate({
 			owner_id: data.owner_id,
@@ -176,6 +184,11 @@ const OwnerDetails = () => {
 		const matchesSearch = search ? cars.car_brand.toLowerCase().includes(search.toLowerCase()) || cars.car_model?.toLowerCase().includes(search.toLowerCase()) : true;
 		return matchesCategory && matchesSearch;
 	};
+
+	const total = owner_query.data?.cars.length ?? 0;
+	const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+	const paginated = owner_query.data?.cars ? owner_query.data?.cars.filter(filteredCars).slice((page - 1) * pageSize, page * pageSize) : [];
 
 	if (owner_query.isPending) {
 		return (
@@ -294,7 +307,7 @@ const OwnerDetails = () => {
 										className={`text-xs font-normal rounded-full py-1.5 px-3 ${
 											category === 'AVAILABLE' ? 'bg-slate-900 hover:bg-slate-800 text-slate-50' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
 										}`}
-										onClick={() => setCategory('AVAILABLE')}
+										onClick={() => setCategory('available')}
 									>
 										Approved
 									</button>
@@ -327,15 +340,19 @@ const OwnerDetails = () => {
 							</div>
 						</div>
 						<div className="flex flex-col w-full gap-2 mt-4">
-							{owner_query.data?.cars.filter(filteredCars).length === 0 ? (
+							{paginated.length === 0 ? (
 								<div className="h-full w-full bg-white rounded-xl p-5 flex flex-col justify-center items-center gap-2">
 									<Frown size={30} className="text-slate-500" />
 									<p className="text-sm text-slate-500 font-medium">No vehicles found.</p>
 								</div>
 							) : (
 								<div className="h-full w-full py-2 space-y-1.5">
-									{owner_query.data?.cars.filter(filteredCars).map((car, index) => (
-										<div key={`CAR${index}`} className="flex md:items-center justify-between rounded-lg py-2.5 px-4 bg-slate-50 hover:bg-slate-100">
+									{paginated.map((car, index) => (
+										<div
+											key={`CAR${index}`}
+											className="flex md:items-center justify-between rounded-lg py-2.5 px-4 bg-slate-50 hover:bg-slate-100"
+											onClick={() => openVehicleDetails(car.id)}
+										>
 											<div className="flex-1 flex flex-col lg:flex-row items-start lg:items-center gap-4">
 												<div className="flex-1 flex items-center gap-4">
 													{car.car_images[0]?.file_folder && car.car_images[0]?.image_name ? (
@@ -377,7 +394,7 @@ const OwnerDetails = () => {
 												</div>
 											</div>
 											<div className="flex justify-end items-center">
-												<button className="p-2 bg-slate-50 rounded-full">
+												<button className="p-2 bg-slate-50 rounded-full" onClick={() => openVehicleDetails(car.id)}>
 													<ChevronRight size={16} className="text-slate-400" />
 												</button>
 											</div>
@@ -385,6 +402,44 @@ const OwnerDetails = () => {
 									))}
 								</div>
 							)}
+							<div className="flex flex-col md:flex-row items-start md:items-center justify-between mt-4 gap-2">
+								<div className="text-xs text-slate-500">
+									Showing {total === 0 ? 0 : (page - 1) * pageSize + 1} - {Math.min(page * pageSize, total)} of {total}
+								</div>
+								<div className="flex items-center gap-2">
+									<button
+										className="px-3 py-1 text-xs rounded-md bg-white disabled:opacity-50"
+										disabled={page <= 1}
+										onClick={() => setPage((p) => Math.max(1, p - 1))}
+									>
+										Previous
+									</button>
+
+									{/* simple page numbers */}
+									<div className="flex items-center gap-1">
+										{Array.from({ length: totalPages }).map((_, i) => {
+											const pageNumber = i + 1;
+											return (
+												<button
+													key={pageNumber}
+													className={`px-3 py-1 text-xs rounded-md ${pageNumber === page ? 'bg-slate-900 text-white' : 'bg-white'}`}
+													onClick={() => setPage(pageNumber)}
+												>
+													{pageNumber}
+												</button>
+											);
+										})}
+									</div>
+
+									<button
+										className="px-3 py-1 text-xs rounded-md bg-white disabled:opacity-50"
+										disabled={page >= totalPages}
+										onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+									>
+										Next
+									</button>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
