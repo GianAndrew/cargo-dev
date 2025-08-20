@@ -12,6 +12,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
 import Vehicles from '@/pages/Vehicles';
 import OwnerDetails from '@/pages/OwnerDetails';
+import VehicleDetails from './pages/VehicleDetails';
 
 const queryClient = new QueryClient();
 
@@ -33,7 +34,10 @@ const App = () => {
 							<Route index element={<Rentals />} />
 							<Route path=":owner_id" element={<OwnerDetails />} />
 						</Route>
-						<Route path="/vehicles" element={<Vehicles />} />
+						<Route path="/vehicles">
+							<Route index element={<Vehicles />} />
+							<Route path=":vehicle_id" element={<VehicleDetails />} />
+						</Route>
 
 						<Route path="/users" element={<Users />} />
 						<Route path="/bookings" element={<Bookings />} />

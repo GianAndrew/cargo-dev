@@ -87,16 +87,16 @@ const Users = () => {
 	return (
 		<>
 			<div className="bg-slate-50 min-h-screen p-5 w-full">
-				<div className="my-2 flex justify-between items-center">
+				<div className="my-2 flex flex-col md:flex-row justify-between items-start gap-2">
 					<div>
 						<h1 className="text-lg font-medium text-slate-700">{users_query.data?.length || 0} Users</h1>
 						<p className="text-sm font-normal text-slate-500">Manage renter accounts and their details</p>
 					</div>
-					<div className="flex items-center gap-2 w-full lg:max-w-60 rounded-full py-2.5 px-3 bg-white">
+					<div className="flex items-center gap-2 w-full md:max-w-60 rounded-full py-2.5 px-3 bg-white">
 						<Search size={14} className="text-slate-400" />
 						<input
 							type="text"
-							placeholder="Enter user name"
+							placeholder="Search user"
 							className="w-full bg-white text-xs font-normal text-slate-700 placeholder:text-slate-400 outline-0"
 							onChange={(e) => setSearch(e.target.value)}
 						/>
