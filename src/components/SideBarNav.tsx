@@ -82,7 +82,7 @@ const SideBarNav = () => {
 							<button onClick={logOut} className="text-xs font-semibold w-full px-5 py-3 bg-slate-900 text-white rounded-4xl hover:bg-slate-800">
 								Okay
 							</button>
-							<button onClick={cancelLogOut} className="text-xs font-semibold w-full px-5 py-3 text-slate-900 rounded-4xl hover:bg-slate-100">
+							<button onClick={cancelLogOut} className="text-xs font-medium w-full px-5 py-3 text-slate-900 rounded-4xl hover:bg-slate-100">
 								Not now
 							</button>
 						</div>

@@ -261,46 +261,54 @@ const VehicleDetails = () => {
 						</div>
 						<div className="mt-2 bg-slate-50 p-4 rounded-lg">
 							<p className="text-sm font-medium text-slate-500">Coding days</p>
-							<div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2 place-content-center">
-								{vehicle_query.data?.car_coding.length === 0 ? (
-									<p className="cols-span-4 text-center text-xs font-medium text-slate-500">No coding days available</p>
-								) : (
-									vehicle_query.data?.car_coding.map((code: CarCoding) => (
-										<p key={code.id} className="capitalize text-center font-medium text-xs text-amber-700 bg-amber-200 rounded-full px-3 py-1.5">
+							{vehicle_query.data?.car_coding.length === 0 ? (
+								<div className="flex justify-center items-center h-full w-full bg-white rounded-xl p-5">
+									<p className="text-xs font-medium text-slate-500">No coding days available</p>
+								</div>
+							) : (
+								<div className="flex flex-wrap gap-2 mt-2">
+									{vehicle_query.data?.car_coding.map((code: CarCoding) => (
+										<p key={code.id} className="capitalize text-center font-normal text-xs text-amber-700 bg-amber-200 rounded-full px-2.5 py-1">
 											{code.coding_day_value}
 										</p>
-									))
-								)}
-							</div>
+									))}
+								</div>
+							)}
 						</div>
 						<div className="mt-2 bg-slate-50 p-4 rounded-lg">
 							<p className="text-sm font-medium text-slate-500">Features</p>
-							<div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2 place-content-center">
-								{vehicle_query.data?.car_features.length === 0 ? (
-									<p className="cols-span-4 text-center text-xs font-medium text-slate-500">No features available</p>
-								) : (
-									vehicle_query.data?.car_features.map((ftrs: CarFeatures) => (
-										<p key={ftrs.id} className="capitalize text-center text-xs font-medium text-slate-700 bg-slate-200 rounded-full px-3 py-1.5">
+
+							{vehicle_query.data?.car_features.length === 0 ? (
+								<div className="flex justify-center items-center h-full w-full bg-white rounded-xl p-5">
+									<p className="text-xs font-medium text-slate-500">No features available</p>
+								</div>
+							) : (
+								<div className="flex flex-wrap gap-2 mt-2">
+									{vehicle_query.data?.car_features.map((ftrs: CarFeatures) => (
+										<p key={ftrs.id} className="capitalize text-center text-xs font-normal text-slate-700 bg-slate-200 rounded-full px-2.5 py-1">
 											{ftrs.feature_name}
 										</p>
-									))
-								)}
-							</div>
+									))}
+								</div>
+							)}
 						</div>
 						<div className="mt-2 bg-slate-50 p-4 rounded-lg">
 							<p className="text-sm font-medium text-slate-500">Rules</p>
-							<div className="grid grid-cols-2 md:grid-cols-2 gap-2 mt-2 place-content-center">
-								{vehicle_query.data?.car_rules.length === 0 ? (
-									<p className="col-span-2 text-center text-xs font-medium text-slate-500">No rules available</p>
-								) : (
-									vehicle_query.data?.car_rules.map((rls: CarRules) => (
+
+							{vehicle_query.data?.car_rules.length === 0 ? (
+								<div className="flex justify-center items-center h-full w-full bg-white rounded-xl p-5">
+									<p className="text-xs font-medium text-slate-500">No rules available</p>
+								</div>
+							) : (
+								<div className="grid grid-cols-2 md:grid-cols-2 gap-2 mt-2 place-content-center">
+									{vehicle_query.data?.car_rules.map((rls: CarRules) => (
 										<div className="flex items-center gap-1	" key={rls.id}>
 											<OctagonX size={14} />
 											<p className="capitalize text-start text-xs font-medium text-slate-700">{rls.rule_name}</p>
 										</div>
-									))
-								)}
-							</div>
+									))}
+								</div>
+							)}
 						</div>
 					</div>
 				</div>

@@ -3,7 +3,7 @@ import { useAxios } from '@/hooks/useAxios';
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { ChevronRight, Frown, Search } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 type TOwners = {
@@ -69,14 +69,24 @@ const Rentals = () => {
 		return matchesCategory && ownerSearch;
 	};
 
+	const navigateOwnerDetails = (owner_id: string) => {
+		navigate(`/rentals/${owner_id}`);
+	};
+
 	const total = owners_query.data?.length ?? 0;
 	const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
 	const paginated = owners_query.data ? owners_query.data.filter(filteredOwners).slice((page - 1) * pageSize, page * pageSize) : [];
 
-	const navigateOwnerDetails = (owner_id: string) => {
-		navigate(`/rentals/${owner_id}`);
-	};
+	useEffect(() => {
+		setPage(1);
+	}, [category, search, owners_query.data]);
+
+	useEffect(() => {
+		if (page > totalPages) {
+			setPage(totalPages);
+		}
+	}, [page, totalPages]);
 
 	if (owners_query.isPending) {
 		return (

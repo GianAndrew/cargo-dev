@@ -2,7 +2,7 @@ import { SPACES_ENDPOINT } from '@/constant/aws';
 import { useAxios } from '@/hooks/useAxios';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronRight, Frown, Search } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface CarImage {
@@ -66,14 +66,24 @@ const VehiclesPage = () => {
 		return matchesCategory && matchesSearch;
 	};
 
+	const openVehicleDetails = (vehicle_id: number) => {
+		navigate(`/vehicles/${vehicle_id}`);
+	};
+
 	const total = vehicles_query.data?.length ?? 0;
 	const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
 	const paginated = vehicles_query.data ? vehicles_query.data?.filter(filteredCars).slice((page - 1) * pageSize, page * pageSize) : [];
 
-	const openVehicleDetails = (vehicle_id: number) => {
-		navigate(`/vehicles/${vehicle_id}`);
-	};
+	useEffect(() => {
+		setPage(1);
+	}, [category, search, vehicles_query.data]);
+
+	useEffect(() => {
+		if (page > totalPages) {
+			setPage(totalPages);
+		}
+	}, [page, totalPages]);
 
 	if (vehicles_query.isPending) {
 		return (

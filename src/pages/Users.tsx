@@ -3,7 +3,7 @@ import { useAxios } from '@/hooks/useAxios';
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { ChevronRight, Frown, Search } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 type User = {
 	id: number;
@@ -41,7 +41,7 @@ const Users = () => {
 
 	// pagination state
 	const [page, setPage] = useState<number>(1);
-	const [pageSize] = useState<number>(15); // change page size as needed
+	const [pageSize] = useState<number>(10); // change page size as needed
 
 	const users_query = useQuery({
 		queryKey: ['users'],
@@ -69,6 +69,16 @@ const Users = () => {
 	const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
 	const paginated = users_query.data ? users_query.data.filter(filteredUsers).slice((page - 1) * pageSize, page * pageSize) : [];
+
+	useEffect(() => {
+		setPage(1);
+	}, [search, users_query.data]);
+
+	useEffect(() => {
+		if (page > totalPages) {
+			setPage(totalPages);
+		}
+	}, [page, totalPages]);
 
 	if (users_query.isPending) {
 		return (

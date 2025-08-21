@@ -2,8 +2,8 @@ import { SPACES_ENDPOINT } from '@/constant/aws';
 import { useAxios } from '@/hooks/useAxios';
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
-import { ChevronRight, Mail, Phone } from 'lucide-react';
-import { useState } from 'react';
+import { ChevronRight, Frown, Mail, Phone } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { FormatAsPrice } from '@/utils/FormatPrice';
 
 type TBooking = {
@@ -77,6 +77,8 @@ const BookStatus = (status: TBooking['status']) => {
 const Bookings = () => {
 	const api = useAxios();
 
+	const [category, setCategory] = useState<string>('all');
+
 	const [openBookingDetailsModal, setOpenBookingDetailModal] = useState(false);
 	const [selectedBooking, setSelectedBooking] = useState<TBooking | null>(null);
 
@@ -92,11 +94,14 @@ const Bookings = () => {
 		},
 	});
 
-	// derived pagination values
-	const total = bookings_query.data?.length ?? 0;
-	const totalPages = Math.max(1, Math.ceil(total / pageSize));
-
-	const paginated = bookings_query.data ? bookings_query.data.slice((page - 1) * pageSize, page * pageSize) : [];
+	const filteredBookings = (booking: TBooking) => {
+		if (category === 'all') return true;
+		if (category === 'pending') return booking.status === 'PENDING';
+		if (category === 'to_pay') return booking.status === 'TO_PAY';
+		if (category === 'rented') return booking.status === 'RENTED';
+		if (category === 'completed') return booking.status === 'COMPLETED';
+		return false;
+	};
 
 	const handleSelectBooking = (booking: TBooking) => {
 		setSelectedBooking(booking);
@@ -106,6 +111,16 @@ const Bookings = () => {
 	const handleCloseBookingDetails = () => {
 		setOpenBookingDetailModal(false);
 	};
+
+	// derived pagination values
+	const total = bookings_query.data?.length ?? 0;
+	const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+	const paginated = bookings_query.data ? bookings_query.data.filter(filteredBookings).slice((page - 1) * pageSize, page * pageSize) : [];
+
+	useEffect(() => {
+		setPage(1);
+	}, [category, bookings_query.data]);
 
 	if (bookings_query.isPending) {
 		return (
@@ -137,72 +152,142 @@ const Bookings = () => {
 				<div className="my-2 ">
 					<h1 className="text-lg font-medium text-slate-700">Bookings</h1>
 					<p className="text-sm font-normal text-slate-500">Manage bookings and transactions.</p>
+
+					<div className="mt-2 flex flex-wrap items-center gap-2">
+						<button
+							className={`${
+								category === 'all'
+									? 'bg-slate-900 text-white hover:bg-slate-700 hover:text-slate-200'
+									: 'bg-white text-slate-500 hover:bg-slate-300 hover:text-slate-700'
+							}  px-3 py-1.5 rounded-full text-xs  transition-colors`}
+							onClick={() => setCategory('all')}
+						>
+							<span>All</span>
+						</button>
+						<button
+							className={`${
+								category === 'pending'
+									? 'bg-slate-900 text-white hover:bg-slate-700 hover:text-slate-200'
+									: 'bg-white text-slate-500 hover:bg-slate-300 hover:text-slate-700'
+							}  px-3 py-1.5 rounded-full text-xs hover:bg-slate-300 transition-colors`}
+							onClick={() => setCategory('pending')}
+						>
+							<span>Pending</span>
+						</button>
+						<button
+							className={`${
+								category === 'to_pay'
+									? 'bg-slate-900 text-white hover:bg-slate-700 hover:text-slate-200'
+									: 'bg-white text-slate-500 hover:bg-slate-300 hover:text-slate-700'
+							}  px-3 py-1.5 rounded-full text-xs hover:bg-slate-300 transition-colors`}
+							onClick={() => setCategory('to_pay')}
+						>
+							<span>To Pay</span>
+						</button>
+						<button
+							className={`${
+								category === 'rented'
+									? 'bg-slate-900 text-white hover:bg-slate-700 hover:text-slate-200'
+									: 'bg-white text-slate-500 hover:bg-slate-300 hover:text-slate-700'
+							}  px-3 py-1.5 rounded-full text-xs hover:bg-slate-300 transition-colors`}
+							onClick={() => setCategory('rented')}
+						>
+							<span>Rented</span>
+						</button>
+						<button
+							className={`${
+								category === 'completed'
+									? 'bg-slate-900 text-white hover:bg-slate-700 hover:text-slate-200'
+									: 'bg-white text-slate-500 hover:bg-slate-300 hover:text-slate-700'
+							}  px-3 py-1.5 rounded-full text-xs hover:bg-slate-300 transition-colors`}
+							onClick={() => setCategory('completed')}
+						>
+							<span>Completed</span>
+						</button>
+						<button
+							className={`${
+								category === 'cancelled'
+									? 'bg-slate-900 text-white hover:bg-slate-700 hover:text-slate-200'
+									: 'bg-white text-slate-500 hover:bg-slate-300 hover:text-slate-700'
+							}  px-3 py-1.5 rounded-full text-xs hover:bg-slate-300 transition-colors`}
+							onClick={() => setCategory('cancelled')}
+						>
+							<span>Cancelled</span>
+						</button>
+					</div>
 				</div>
 				<div className="flex-1 mt-5">
-					{paginated.map((b) => {
-						const rentalPic = `${SPACES_ENDPOINT}/${b.car.owner.profile_file_folder}/${b.car.owner.profile_pic_key}`;
-						const renterName = `${b.user.first_name} ${b.user.last_name}`;
-						const carUnit = `${b.car.car_brand} ${b.car.car_model} (${b.car.car_year})`;
-						const CarRentalName = b.car.owner.car_rental_name;
+					{paginated.length === 0 ? (
+						<div className="h-full w-full bg-white rounded-xl p-5 flex flex-col justify-center items-center gap-2">
+							<Frown size={30} className="text-slate-500" />
+							<p className="text-sm text-slate-500 font-medium">No Bookings found.</p>
+						</div>
+					) : (
+						paginated.map((b) => {
+							const rentalPic = `${SPACES_ENDPOINT}/${b.car.owner.profile_file_folder}/${b.car.owner.profile_pic_key}`;
+							const renterName = `${b.user.first_name} ${b.user.last_name}`;
+							const carUnit = `${b.car.car_brand} ${b.car.car_model} (${b.car.car_year})`;
+							const CarRentalName = b.car.owner.car_rental_name;
 
-						return (
-							<div
-								key={b.id}
-								className="w-full flex justify-between items-center py-2.5 px-3 bg-white my-1.5 rounded-lg gap-2 lg:gap-10 hover:bg-slate-100"
-								onClick={() => handleSelectBooking(b)}
-							>
-								<div className="w-full flex flex-col lg:flex-row justify-start items-start lg:items-center gap-8">
-									<div className="w-full lg:w-1/3 flex gap-8 items-center">
-										{b.car.car_images[0].file_folder === null && b.car.car_images[0].image_name === null ? (
-											<img src={'/images/default_image.jpg'} alt={'defualt'} className="w-8 h-8 object-cover rounded-full flex-shrink-0" />
-										) : (
-											<img src={rentalPic} alt={carUnit} className="w-8 h-8 object-cover ring-2 ring-slate-200 rounded-full" />
-										)}
-										<div className="flex flex-col justify-start items-start gap-1">
-											<p className=" text-xs text-slate-900 font-medium">{CarRentalName}</p>
-											<p className=" text-xs text-slate-500 font-normal capitalize">
-												{b.car.car_brand} {b.car.car_model} ({b.car.car_year})
-											</p>
-										</div>
-									</div>
-
-									<div className="w-full lg:w-2/3 flex items-start lg:items-center gap-8">
-										<img
-											src={`${SPACES_ENDPOINT}/${b.user.profile_file_folder}/${b.user.profile_pic_key}`}
-											alt="renter_dp"
-											className="h-8 w-8 object-cover ring-2 ring-slate-200 rounded-full"
-										/>
-										<div className="w-full flex flex-col lg:flex-row justify-start items-start lg:items-center gap-1">
-											<div className="w-full lg:w-1/3">
-												<span className="text-xs text-slate-500 font-normal">Renter name:</span>
-												<p className="text-xs text-slate-900 font-medium">{renterName}</p>
+							return (
+								<div
+									key={b.id}
+									className="w-full flex justify-between items-center py-2.5 px-3 bg-white my-1.5 rounded-lg gap-2 lg:gap-10 hover:bg-slate-100"
+									onClick={() => handleSelectBooking(b)}
+								>
+									<div className="w-full flex flex-col lg:flex-row justify-start items-start lg:items-center gap-8">
+										<div className="w-full lg:w-1/3 flex gap-8 items-center">
+											{b.car.car_images[0].file_folder === null && b.car.car_images[0].image_name === null ? (
+												<img src={'/images/default_image.jpg'} alt={'defualt'} className="w-8 h-8 object-cover rounded-full flex-shrink-0" />
+											) : (
+												<img src={rentalPic} alt={carUnit} className="w-8 h-8 object-cover ring-2 ring-slate-200 rounded-full" />
+											)}
+											<div className="flex flex-col justify-start items-start gap-1">
+												<p className=" text-xs text-slate-900 font-medium">{CarRentalName}</p>
+												<p className=" text-xs text-slate-500 font-normal capitalize">
+													{b.car.car_brand} {b.car.car_model} ({b.car.car_year})
+												</p>
 											</div>
-											<div className="lg:w-2/3 mt-2 lg:mt-0 w-full flex flex-col lg:flex-row items-start lg:items-center gap-2 justify-between">
-												<div className="w-full lg:p-0 flex flex-col lg:flex-row  items-start lg:items-center justify-around gap-2">
-													<div>
-														<span className="text-xs font-regular text-slate-500">Rented at:</span>
-														<p className={`text-xs font-medium text-slate-900`}>{dayjs(b.created_at).format('MMM D, YYYY, h:mm A')}</p>
+										</div>
+
+										<div className="w-full lg:w-2/3 flex items-start lg:items-center gap-8">
+											<img
+												src={`${SPACES_ENDPOINT}/${b.user.profile_file_folder}/${b.user.profile_pic_key}`}
+												alt="renter_dp"
+												className="h-8 w-8 object-cover ring-2 ring-slate-200 rounded-full"
+											/>
+											<div className="w-full flex flex-col lg:flex-row justify-start items-start lg:items-center gap-1">
+												<div className="w-full lg:w-1/3">
+													<span className="text-xs text-slate-500 font-normal">Renter name:</span>
+													<p className="text-xs text-slate-900 font-medium">{renterName}</p>
+												</div>
+												<div className="lg:w-2/3 mt-2 lg:mt-0 w-full flex flex-col lg:flex-row items-start lg:items-center gap-2 justify-between">
+													<div className="w-full lg:p-0 flex flex-col lg:flex-row  items-start lg:items-center justify-around gap-2">
+														<div>
+															<span className="text-xs font-regular text-slate-500">Rented at:</span>
+															<p className={`text-xs font-medium text-slate-900`}>{dayjs(b.created_at).format('MMM D, YYYY, h:mm A')}</p>
+														</div>
+														<span className={`text-xs font-medium rounded-full py-1 px-2 my-2 lg:my-0 ${BookStatus(b.status).class}`}>
+															{BookStatus(b.status).value}
+														</span>
 													</div>
-													<span className={`text-xs font-medium rounded-full py-1 px-2 my-2 lg:my-0 ${BookStatus(b.status).class}`}>
-														{BookStatus(b.status).value}
-													</span>
 												</div>
 											</div>
 										</div>
 									</div>
+									<button
+										className="p-1.5 rounded-full bg-slate-200 cursor-pointer"
+										onClick={(e) => {
+											e.stopPropagation();
+											handleSelectBooking(b);
+										}}
+									>
+										<ChevronRight size={16} className="text-slate-400" />
+									</button>
 								</div>
-								<button
-									className="p-1.5 rounded-full bg-slate-200 cursor-pointer"
-									onClick={(e) => {
-										e.stopPropagation();
-										handleSelectBooking(b);
-									}}
-								>
-									<ChevronRight size={16} className="text-slate-400" />
-								</button>
-							</div>
-						);
-					})}
+							);
+						})
+					)}
 				</div>
 				<div className="flex flex-col md:flex-row items-start md:items-center justify-between mt-4 gap-2">
 					<div className="text-xs text-slate-500">
