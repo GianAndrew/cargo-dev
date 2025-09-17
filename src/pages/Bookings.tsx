@@ -1,15 +1,15 @@
 import { SPACES_ENDPOINT } from '@/constant/aws';
 import { useAxios } from '@/hooks/useAxios';
+import { FormatAsPrice } from '@/utils/FormatPrice';
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
-import { ChevronRight, Frown, Mail, Phone } from 'lucide-react';
+import { ChevronRight, Frown, Mail, Phone, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { FormatAsPrice } from '@/utils/FormatPrice';
 
 type TBooking = {
 	id: number;
 	reference_number: string;
-	status: 'PENDING' | 'TO_PAY' | 'RENTED' | 'COMPLETED';
+	status: 'PENDING' | 'TO_PAY' | 'RENTED' | 'COMPLETED' | 'REJECTED';
 	created_at: Date;
 	downpay_is_paid: boolean;
 	file_folder: string;
@@ -59,6 +59,16 @@ type TBooking = {
 	};
 };
 
+type TRentals = {
+	id: number;
+	car_rental_name: string;
+};
+
+type TBookingsResponse = {
+	bookings: TBooking[];
+	rentals: TRentals[];
+};
+
 const BookStatus = (status: TBooking['status']) => {
 	switch (status) {
 		case 'PENDING':
@@ -69,6 +79,8 @@ const BookStatus = (status: TBooking['status']) => {
 			return { class: 'bg-blue-100 text-blue-500', value: 'Rented' };
 		case 'COMPLETED':
 			return { class: 'bg-emerald-100 text-emerald-500', value: 'Completed' };
+		case 'REJECTED':
+			return { class: 'bg-red-100 text-red-500', value: 'Rejected' };
 		default:
 			return { class: 'bg-slate-100 text-slate-500', value: 'Unknown' };
 	}
@@ -78,6 +90,10 @@ const Bookings = () => {
 	const api = useAxios();
 
 	const [category, setCategory] = useState<string>('all');
+	const [dateFilter, setDateFilter] = useState<string>('');
+	const [search, setSearch] = useState<string>('');
+	const [rentalFilter, setRentalFilter] = useState<string>('all');
+	// booking details modal state
 
 	const [openBookingDetailsModal, setOpenBookingDetailModal] = useState(false);
 	const [selectedBooking, setSelectedBooking] = useState<TBooking | null>(null);
@@ -89,19 +105,72 @@ const Bookings = () => {
 	const bookings_query = useQuery({
 		queryKey: ['bookings'],
 		queryFn: async () => {
-			const response = await api.get<TBooking[]>('/api/admin/bookings');
+			const response = await api.get<TBookingsResponse>('/api/admin/bookings');
+			console.log(response.data);
 			return response.data;
 		},
 	});
 
 	const filteredBookings = (booking: TBooking) => {
-		if (category === 'all') return true;
-		if (category === 'pending') return booking.status === 'PENDING';
-		if (category === 'to_pay') return booking.status === 'TO_PAY';
-		if (category === 'rented') return booking.status === 'RENTED';
-		if (category === 'completed') return booking.status === 'COMPLETED';
-		return false;
+		// 1. Filter by category
+		if (category !== 'all' && booking.status.toLowerCase() !== category.toLowerCase()) {
+			return false;
+		}
+
+		// 2. Filter by search term (if provided)
+		if (search.trim() !== '') {
+			const searchLower = search.toLowerCase();
+			const matchesSearch =
+				// Reference number
+				booking.reference_number.toLowerCase().includes(searchLower) ||
+				// Car details
+				booking.car.car_brand.toLowerCase().includes(searchLower) ||
+				booking.car.car_model.toLowerCase().includes(searchLower) ||
+				booking.car.owner.car_rental_name.toLowerCase().includes(searchLower) ||
+				// User (renter) details
+				booking.user.first_name.toLowerCase().includes(searchLower) ||
+				booking.user.last_name.toLowerCase().includes(searchLower) ||
+				// Location
+				booking.pickup_location.toLowerCase().includes(searchLower) ||
+				booking.return_location.toLowerCase().includes(searchLower);
+
+			if (!matchesSearch) return false;
+		}
+
+		// 2.5 Filter by rental (if provided)
+		if (rentalFilter !== 'all' && booking.car.owner.car_rental_name.toString() !== rentalFilter) {
+			return false;
+		}
+
+		// 3. Filter by date (if provided)
+		if (dateFilter) {
+			const filterDate = new Date(dateFilter);
+			// Reset hours to compare just the date
+			filterDate.setHours(0, 0, 0, 0);
+
+			const bookingDate = new Date(booking.created_at);
+			bookingDate.setHours(0, 0, 0, 0);
+
+			const pickupDate = new Date(booking.pickup_date);
+			pickupDate.setHours(0, 0, 0, 0);
+
+			const returnDate = new Date(booking.return_date);
+			returnDate.setHours(0, 0, 0, 0);
+
+			// Check if the date matches created_at, pickup_date, or return_date
+			if (bookingDate.getTime() !== filterDate.getTime() && pickupDate.getTime() !== filterDate.getTime() && returnDate.getTime() !== filterDate.getTime()) {
+				return false;
+			}
+		}
+
+		// If it passed all filters, include it
+		return true;
 	};
+
+	// Update pagination effect to reset page when filters change
+	useEffect(() => {
+		setPage(1);
+	}, [category, search, dateFilter, bookings_query.data]);
 
 	const handleSelectBooking = (booking: TBooking) => {
 		setSelectedBooking(booking);
@@ -113,14 +182,10 @@ const Bookings = () => {
 	};
 
 	// derived pagination values
-	const total = bookings_query.data?.length ?? 0;
+	const total = bookings_query.data?.bookings.length ?? 0;
 	const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
-	const paginated = bookings_query.data ? bookings_query.data.filter(filteredBookings).slice((page - 1) * pageSize, page * pageSize) : [];
-
-	useEffect(() => {
-		setPage(1);
-	}, [category, bookings_query.data]);
+	const paginated = bookings_query.data ? bookings_query.data.bookings.filter(filteredBookings).slice((page - 1) * pageSize, page * pageSize) : [];
 
 	if (bookings_query.isPending) {
 		return (
@@ -154,66 +219,55 @@ const Bookings = () => {
 					<p className="text-sm font-normal text-slate-500">Manage bookings and transactions.</p>
 
 					<div className="mt-2 flex flex-wrap items-center gap-2">
-						<button
-							className={`${
-								category === 'all'
-									? 'bg-slate-900 text-white hover:bg-slate-700 hover:text-slate-200'
-									: 'bg-white text-slate-500 hover:bg-slate-300 hover:text-slate-700'
-							}  px-3 py-1.5 rounded-full text-xs  transition-colors`}
-							onClick={() => setCategory('all')}
-						>
-							<span>All</span>
-						</button>
-						<button
-							className={`${
-								category === 'pending'
-									? 'bg-slate-900 text-white hover:bg-slate-700 hover:text-slate-200'
-									: 'bg-white text-slate-500 hover:bg-slate-300 hover:text-slate-700'
-							}  px-3 py-1.5 rounded-full text-xs hover:bg-slate-300 transition-colors`}
-							onClick={() => setCategory('pending')}
-						>
-							<span>Pending</span>
-						</button>
-						<button
-							className={`${
-								category === 'to_pay'
-									? 'bg-slate-900 text-white hover:bg-slate-700 hover:text-slate-200'
-									: 'bg-white text-slate-500 hover:bg-slate-300 hover:text-slate-700'
-							}  px-3 py-1.5 rounded-full text-xs hover:bg-slate-300 transition-colors`}
-							onClick={() => setCategory('to_pay')}
-						>
-							<span>To Pay</span>
-						</button>
-						<button
-							className={`${
-								category === 'rented'
-									? 'bg-slate-900 text-white hover:bg-slate-700 hover:text-slate-200'
-									: 'bg-white text-slate-500 hover:bg-slate-300 hover:text-slate-700'
-							}  px-3 py-1.5 rounded-full text-xs hover:bg-slate-300 transition-colors`}
-							onClick={() => setCategory('rented')}
-						>
-							<span>Rented</span>
-						</button>
-						<button
-							className={`${
-								category === 'completed'
-									? 'bg-slate-900 text-white hover:bg-slate-700 hover:text-slate-200'
-									: 'bg-white text-slate-500 hover:bg-slate-300 hover:text-slate-700'
-							}  px-3 py-1.5 rounded-full text-xs hover:bg-slate-300 transition-colors`}
-							onClick={() => setCategory('completed')}
-						>
-							<span>Completed</span>
-						</button>
-						<button
-							className={`${
-								category === 'cancelled'
-									? 'bg-slate-900 text-white hover:bg-slate-700 hover:text-slate-200'
-									: 'bg-white text-slate-500 hover:bg-slate-300 hover:text-slate-700'
-							}  px-3 py-1.5 rounded-full text-xs hover:bg-slate-300 transition-colors`}
-							onClick={() => setCategory('cancelled')}
-						>
-							<span>Cancelled</span>
-						</button>
+						{/* search */}
+						<div className=" px-3 gap-2 flex items-center justify-between w-full max-w-md rounded-full  border border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-400">
+							<Search size={16} className=" text-slate-400" />
+							<input
+								type="text"
+								placeholder="Search by renter name, car model, or reference number"
+								className="w-full text-xs py-1.5 outline-0"
+								onChange={(e) => setSearch(e.target.value)}
+							/>
+						</div>
+
+						{/* filter by rentals */}
+						<div>
+							<select
+								className="px-3 py-1.5 rounded-full text-xs border border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-400"
+								onChange={(e) => setRentalFilter(e.target.value)}
+							>
+								<option value="all">All Rentals</option>
+								{bookings_query.data?.rentals.map((r) => (
+									<option key={r.id} value={r.car_rental_name}>
+										{r.car_rental_name}
+									</option>
+								))}
+							</select>
+						</div>
+
+						{/* filter by date */}
+						<div>
+							<input
+								type="date"
+								className="px-3 py-1.5 rounded-full text-xs border border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-400"
+								onChange={(e) => setDateFilter(e.target.value)}
+							/>
+						</div>
+
+						{/* status */}
+						<div>
+							<select
+								className="px-3 py-1.5 rounded-full text-xs border border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-400"
+								onChange={(e) => setCategory(e.target.value)}
+							>
+								<option value="all">All Status</option>
+								<option value="pending">Pending</option>
+								<option value="to_pay">To Pay</option>
+								<option value="rented">Rented</option>
+								<option value="completed">Completed</option>
+								<option value="cancelled">Cancelled</option>
+							</select>
+						</div>
 					</div>
 				</div>
 				<div className="flex-1 mt-5">
@@ -324,6 +378,8 @@ const Bookings = () => {
 					</div>
 				</div>
 			</div>
+
+			{/* Booking Details Modal */}
 			{openBookingDetailsModal && (
 				<div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.5)] ">
 					<div className="bg-white rounded-2xl shadow-lg p-6 w-full h-11/12 md:h-auto max-w-4xl m-2 overflow-auto">

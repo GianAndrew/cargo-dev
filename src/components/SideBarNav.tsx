@@ -6,10 +6,10 @@ import { Link, useNavigate } from 'react-router-dom';
 const NAV_ITEMS = [
 	{ icon: <House size={18} className="text-slate-700" />, label: 'Dashboard', to: '/dashboard' },
 	{ icon: <Book size={18} className="text-slate-700" />, label: 'Bookings', to: '/bookings' },
-	{ icon: <Users size={18} className="text-slate-700" />, label: 'Users', to: '/users' },
+	{ icon: <Users size={18} className="text-slate-700" />, label: 'Renters', to: '/users' },
 	{ icon: <SquareUser size={18} className="text-slate-700" />, label: 'Rentals', to: '/rentals' },
 	{ icon: <CarFront size={18} className="text-slate-700" />, label: 'Vehicles', to: '/vehicles' },
-	{ icon: <MessageCircleWarning size={18} className="text-slate-700" />, label: 'Complaints', to: '/complaints' },
+	{ icon: <MessageCircleWarning size={18} className="text-slate-700" />, label: 'Reports', to: '/complaints' },
 ];
 
 const SideBarNav = () => {

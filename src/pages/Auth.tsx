@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect, useRef, useState } from 'react';
 import { ArrowRight, Eye, EyeOff } from 'lucide-react';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 type AuthProps = {
 	code: string | undefined;
@@ -97,6 +98,7 @@ const Auth = () => {
 							ref={developer_code_ref}
 							type={seePass ? 'text' : 'password'}
 							placeholder="Developer Code"
+							disabled={auth_mutation.isPending}
 							className="w-full bg-white text-xs placeholder:text-xs placeholder:text-slate-300 outline-none"
 						/>
 						<button onClick={handleSeePass} className="ml-2">
@@ -105,12 +107,14 @@ const Auth = () => {
 					</div>
 					<button
 						onClick={handleSubmit}
+						disabled={auth_mutation.isPending}
 						className="flex justify-center items-center bg-white text-slate-900 text-xs font-semibold border border-slate-200 rounded-4xl px-2 py-2 hover:bg-slate-100 transition-colors"
 					>
 						<ArrowRight size={16} className="text-slate-400 inline-block" />
 					</button>
 				</div>
 				<AlertModal isOpen={openAlert} content={alertMessage} onClose={() => setOpenAlert(false)} />
+				{auth_mutation.isPending && <LoadingSpinner text="Authenticating..." size="md" color="primary" className="" />}
 			</div>
 		</div>
 	);

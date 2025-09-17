@@ -1,3 +1,5 @@
+import AlertModal from '@/components/AlertModal';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import { SPACES_ENDPOINT } from '@/constant/aws';
 import { useAxios } from '@/hooks/useAxios';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -72,6 +74,7 @@ interface OwnerWithDocuments {
 	profile_pic_key?: string | null;
 	profile_file_folder?: string | null;
 	status: string;
+	gender: string | null;
 	province?: string | null;
 	city?: string | null;
 	address?: string | null;
@@ -90,7 +93,7 @@ const CarStatus = (status: OwnerCar['status']) => {
 		case 'ARCHIVED':
 			return { bgclass: 'bg-slate-100', textclass: 'text-slate-500', value: 'Archived' };
 		case 'REJECTED':
-			return { bgclass: 'bg-rose-100', textclass: 'text-rose-500', value: 'Rejected' };
+			return { bgclass: 'bg-rose-100', textclass: 'text-rose-500', value: 'Declined' };
 		default:
 			return { bgclass: 'bg-slate-100', textclass: 'text-slate-500', value: 'Unknown' };
 	}
@@ -118,6 +121,12 @@ const OwnerDetails = () => {
 	const [search, setSearch] = useState<string>('');
 
 	const [openDocumentModal, setOpenDocumentModal] = useState<boolean>(false);
+
+	const [alertMessage, setAlertMessage] = useState({
+		title: '',
+		message: '',
+	});
+	const [openAlertModal, setOpenAlertModal] = useState<boolean>(false);
 
 	// pagination state
 	const [page, setPage] = useState<number>(1);
@@ -149,11 +158,15 @@ const OwnerDetails = () => {
 			queryClient.invalidateQueries({
 				queryKey: ['owners'],
 			});
-			setOpenDocumentModal(false);
 		},
 		onError: (error, variables) => {
 			// Handle error
 			if (isAxiosError(error)) {
+				setAlertMessage({
+					title: 'Error',
+					message: error.response?.data.message || error.message,
+				});
+				setOpenAlertModal(true);
 				console.log(`Error updating verdict for owner ${variables.owner_id}:`, error.response?.data || error.message);
 			}
 		},
@@ -177,6 +190,7 @@ const OwnerDetails = () => {
 			document_id: data.document_id,
 			verdict: data.verdict,
 		});
+		setOpenDocumentModal(false);
 	};
 
 	const filteredCars = (cars: OwnerCar) => {
@@ -253,6 +267,10 @@ const OwnerDetails = () => {
 							<div className="flex justify-between items-center mt-2">
 								<span className="text-xs text-slate-500 font-normal">Email:</span>
 								<span className="text-xs text-slate-500 font-normal">{owner_query.data?.email}</span>
+							</div>
+							<div className="flex justify-between items-center mt-2">
+								<span className="text-xs text-slate-500 font-normal">Gender:</span>
+								<span className="text-xs text-slate-500 font-normal capitalize">{owner_query.data?.gender}</span>
 							</div>
 							<div className="flex justify-between items-center mt-2">
 								<span className="text-xs text-slate-500 font-normal">Birth Date:</span>
@@ -489,6 +507,10 @@ const OwnerDetails = () => {
 					</div>
 				</div>
 			)}
+
+			{verdict_mutation.isPending && <LoadingSpinner text="Submitting..." />}
+
+			<AlertModal content={alertMessage} isOpen={openAlertModal} onClose={() => setOpenAlertModal(false)} />
 		</>
 	);
 };

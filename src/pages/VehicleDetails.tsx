@@ -1,12 +1,14 @@
+import AlertModal from '@/components/AlertModal';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import { SPACES_ENDPOINT } from '@/constant/aws';
 import { useAxios } from '@/hooks/useAxios';
+import { FormatAsPrice } from '@/utils/FormatPrice';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { isAxiosError } from 'axios';
 import dayjs from 'dayjs';
 import { ChevronLeft, OctagonX } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { FormatAsPrice } from '@/utils/FormatPrice';
 import { useState } from 'react';
-import { isAxiosError } from 'axios';
+import { useNavigate, useParams } from 'react-router-dom';
 
 interface CarImage {
 	id: number;
@@ -63,7 +65,7 @@ const DocumentStatus = (status: IVehicle['status']) => {
 		case 'ARCHIVED':
 			return { bgclass: 'bg-slate-200', textclass: 'text-slate-500', value: 'Archived' };
 		case 'REJECTED':
-			return { bgclass: 'bg-rose-100', textclass: 'text-rose-500', value: 'Rejected' };
+			return { bgclass: 'bg-rose-100', textclass: 'text-rose-500', value: 'Declined' };
 		default:
 			return { bgclass: 'bg-slate-100', textclass: 'text-slate-500', value: 'Unknown' };
 	}
@@ -73,6 +75,12 @@ const VehicleDetails = () => {
 	const { vehicle_id } = useParams();
 
 	const [openDocumentModal, setOpenDocumentModal] = useState<boolean>(false);
+
+	const [alertMessage, setAlertMessage] = useState({
+		title: '',
+		message: '',
+	});
+	const [openAlertModal, setOpenAlertModal] = useState<boolean>(false);
 
 	const navigate = useNavigate();
 
@@ -102,11 +110,15 @@ const VehicleDetails = () => {
 			queryClient.invalidateQueries({
 				queryKey: ['vehicle'],
 			});
-			setOpenDocumentModal(false);
 		},
 		onError: (error, variables) => {
 			// Handle error
 			if (isAxiosError(error)) {
+				setAlertMessage({
+					title: 'Error',
+					message: error.response?.data.message || error.message,
+				});
+				setOpenAlertModal(true);
 				console.log(`Error updating verdict for owner ${variables.car_id}:`, error.response?.data || error.message);
 			}
 		},
@@ -126,6 +138,7 @@ const VehicleDetails = () => {
 			document_id: data.document_id,
 			verdict: data.verdict,
 		});
+		setOpenDocumentModal(false);
 	};
 
 	if (vehicle_query.isPending) {
@@ -313,6 +326,10 @@ const VehicleDetails = () => {
 					</div>
 				</div>
 			</div>
+
+			{verdict_mutation.isPending && <LoadingSpinner text="Submitting..." />}
+
+			<AlertModal content={alertMessage} isOpen={openAlertModal} onClose={() => setOpenAlertModal(false)} />
 
 			{openDocumentModal && (
 				<div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.5)] ">

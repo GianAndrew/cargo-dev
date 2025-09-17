@@ -28,7 +28,7 @@ const OwnerStatus = (status: TOwners['status']) => {
 		case 'APPROVED':
 			return { bgclass: 'bg-emerald-100', textclass: 'text-emerald-500', value: 'Completed' };
 		case 'REJECTED':
-			return { bgclass: 'bg-rose-100', textclass: 'text-rose-500', value: 'Rejected' };
+			return { bgclass: 'bg-rose-100', textclass: 'text-rose-500', value: 'Declined' };
 		default:
 			return { bgclass: 'bg-slate-100', textclass: 'text-slate-500', value: 'Unknown' };
 	}
