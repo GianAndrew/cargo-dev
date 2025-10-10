@@ -315,7 +315,7 @@ const OwnerDetails = () => {
 									</button>
 									<button
 										className={`text-xs font-normal rounded-full py-1.5 px-3 ${
-											category === 'pending' ? 'bg-slate-900 hover:bg-slate-800 text-slate-50' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
+											category === 'PENDING' ? 'bg-slate-900 hover:bg-slate-800 text-slate-50' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
 										}`}
 										onClick={() => setCategory('pending')}
 									>
@@ -339,7 +339,7 @@ const OwnerDetails = () => {
 									</button>
 									<button
 										className={`text-xs font-normal rounded-full py-1.5 px-3 ${
-											category === 'rejected' ? 'bg-slate-900 hover:bg-slate-800 text-slate-50' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
+											category === 'REJECTED' ? 'bg-slate-900 hover:bg-slate-800 text-slate-50' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
 										}`}
 										onClick={() => setCategory('rejected')}
 									>

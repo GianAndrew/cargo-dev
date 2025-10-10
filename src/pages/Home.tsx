@@ -20,7 +20,7 @@ const Home = () => {
 							</div>
 						</div>
 						<div className="h-full flex items-center z-10">
-							<div className=" max-w-xl">
+							<div className=" max-w-lg">
 								<h1 className="text-white text-5xl font-bold">Find, Reserve &</h1>
 								<h1 className="text-white text-5xl font-bold mb-6 mt-1">Get Vehicle Easily</h1>
 								<p className="text-white mb-6">whether it’s a quick drive around the city or a weekend getaway, we’ve got the perfect ride for you.</p>

@@ -22,7 +22,7 @@ const LoadingSpinner = ({ text = 'Loading...', size = 'md', color = 'primary', c
 	return (
 		<>
 			<div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.5)] ">
-				<div className="relative bg-white rounded-2xl shadow-lg p-6 h-11/12 md:h-auto  m-2 overflow-auto">
+				<div className="relative bg-white rounded-2xl shadow-lg p-6 h-11/12 h-auto  m-2 overflow-auto">
 					<div className={`${className} flex items-center justify-center`}>
 						<div className={`${sizeClasses[size]} ${colorClasses[color]} rounded-full animate-spin`} role="status" aria-label="Loading" />
 					</div>

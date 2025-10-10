@@ -17,6 +17,7 @@ type User = {
 	profile_pic_key: string;
 	created_at: string;
 	birth_date: string;
+	is_disabled: boolean;
 };
 
 const Users = () => {
@@ -156,6 +157,18 @@ const Users = () => {
 											<div className="w-full">
 												<span className="text-xs font-regular text-slate-500">Joined at:</span>
 												<p className="w-full text-xs text-slate-900 font-medium">{dayjs(user.created_at).format('MMM D, YYYY h:mm A')}</p>
+											</div>
+											<div className="w-full">
+												<span className="text-xs font-regular text-slate-500">Account Status</span>
+												<div className="mt-1 flex justify-start items-center">
+													<p
+														className={`py-1 px-2 rounded-full text-xs ${user.is_disabled ? 'text-rose-500' : 'text-emerald-500'} ${
+															user.is_disabled ? 'bg-rose-50' : 'bg-emerald-50'
+														} font-medium`}
+													>
+														{user.is_disabled ? 'Disabled' : 'Active'}
+													</p>
+												</div>
 											</div>
 										</div>
 									</div>
