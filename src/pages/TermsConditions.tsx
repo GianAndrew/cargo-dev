@@ -1,5 +1,3 @@
-import React from 'react';
-
 const terms_conditions = {
 	defintions_of_terms: {
 		title: 'Definitions',

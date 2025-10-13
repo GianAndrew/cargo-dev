@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface SpinnerProps {
 	text?: string;
 	size?: 'sm' | 'md' | 'lg';
