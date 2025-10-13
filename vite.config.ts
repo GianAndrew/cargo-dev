@@ -8,7 +8,7 @@ import path from 'path';
 export default defineConfig({
 	server: {
 		port: 8080,
-		allowedHosts: ['cargo-ix88r.ondigitalocean.app', 'cargorental.me'],
+		allowedHosts: ['cargorental.me'],
 	},
 	plugins: [
 		react(),
@@ -27,5 +27,24 @@ export default defineConfig({
 			'@': path.resolve(__dirname, './src'),
 		},
 	},
-	base: process.env.VITE_BASE_URL || '/cargo-dev',
+	base: '/cargo-dev',
+	build: {
+		rollupOptions: {
+			output: {
+				manualChunks: {
+					// Core React libraries
+					'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+
+					// HTTP client and data fetching
+					'data-vendor': ['axios', '@tanstack/react-query'],
+
+					// Charts and visualization
+					'chart-vendor': ['chart.js', 'react-chartjs-2'],
+
+					// UI and utilities
+					'ui-vendor': ['lucide-react', 'dayjs'],
+				},
+			},
+		},
+	},
 });
