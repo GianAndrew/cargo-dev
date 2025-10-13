@@ -55,7 +55,10 @@ const App = () => {
 					</Route>
 				</Route>
 			</>
-		)
+		),
+		{
+			basename: import.meta.env.BASE_URL, // This matches your Vite base config
+		}
 	);
 	return (
 		<QueryClientProvider client={queryClient}>

@@ -8,7 +8,7 @@ import path from 'path';
 export default defineConfig({
 	server: {
 		port: 8080,
-		allowedHosts: ['cargorental.me'],
+		allowedHosts: ['cargo-ix88r.ondigitalocean.app', 'cargorental.me'],
 	},
 	plugins: [
 		react(),
@@ -27,5 +27,22 @@ export default defineConfig({
 			'@': path.resolve(__dirname, './src'),
 		},
 	},
-	base: '/cargo-dev',
+	base: '/',
+	build: {
+		outDir: 'dist',
+		sourcemap: true,
+		chunkSizeWarningLimit: 1600,
+		rollupOptions: {
+			output: {
+				entryFileNames: 'assets/[name].[hash].js',
+				chunkFileNames: 'assets/[name].[hash].js',
+				assetFileNames: 'assets/[name].[hash].[ext]',
+				manualChunks(id) {
+					if (id.includes('node_modules')) {
+						return id.toString().split('node_modules/')[1].split('/')[0].toString();
+					}
+				},
+			},
+		},
+	},
 });
