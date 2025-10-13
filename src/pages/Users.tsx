@@ -1,9 +1,11 @@
 import { SPACES_ENDPOINT } from '@/constant/aws';
 import { useAxios } from '@/hooks/useAxios';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { isAxiosError } from 'axios';
 import dayjs from 'dayjs';
 import { ChevronRight, Frown, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import AlertModal from '@/components/AlertModal';
 
 type User = {
 	id: number;
@@ -40,15 +42,43 @@ const Users = () => {
 		created_at: '',
 	});
 
+	const [alertMessage, setAlertMessage] = useState({
+		title: '',
+		message: '',
+	});
+	const [openAlertModal, setOpenAlertModal] = useState<boolean>(false);
+
 	// pagination state
 	const [page, setPage] = useState<number>(1);
 	const [pageSize] = useState<number>(10); // change page size as needed
+
+	const queryClient = useQueryClient();
 
 	const users_query = useQuery({
 		queryKey: ['users'],
 		queryFn: async () => {
 			const response = await api.get('/api/admin/users');
 			return response.data;
+		},
+	});
+
+	const disable_mutation = useMutation({
+		mutationFn: async (data: { user_id: number }) => {
+			const response = await api.post(`/api/admin/users/${data.user_id}/disable`);
+			return response.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['users'] });
+			setOpenUserDetailModal(false);
+		},
+		onError: (error) => {
+			if (isAxiosError(error)) {
+				setAlertMessage({
+					title: 'Error',
+					message: error.response?.data.message || error.message,
+				});
+				setOpenAlertModal(true);
+			}
 		},
 	});
 
@@ -59,6 +89,10 @@ const Users = () => {
 
 	const handleCloseUserDetails = () => {
 		setOpenUserDetailModal(false);
+	};
+
+	const handleDisableAccount = (user_id: number) => {
+		disable_mutation.mutate({ user_id });
 	};
 
 	const filteredUsers = (user: User) => {
@@ -159,7 +193,7 @@ const Users = () => {
 												<p className="w-full text-xs text-slate-900 font-medium">{dayjs(user.created_at).format('MMM D, YYYY h:mm A')}</p>
 											</div>
 											<div className="w-full">
-												<span className="text-xs font-regular text-slate-500">Account Status</span>
+												<span className="text-xs font-regular text-slate-500">Status</span>
 												<div className="mt-1 flex justify-start items-center">
 													<p
 														className={`py-1 px-2 rounded-full text-xs ${user.is_disabled ? 'text-rose-500' : 'text-emerald-500'} ${
@@ -254,13 +288,21 @@ const Users = () => {
 						</div>
 
 						<div className="w-full flex flex-col gap-2">
-							<button className="text-xs font-semibold w-full px-5 py-3 bg-slate-900 text-white rounded-4xl hover:bg-slate-800" onClick={handleCloseUserDetails}>
+							<button
+								className="text-xs font-semibold w-full px-5 py-3 bg-slate-900 text-white rounded-4xl hover:bg-slate-800"
+								onClick={() => handleDisableAccount(userDetails.id)}
+								disabled={disable_mutation.isPending}
+							>
+								{userDetails.status === 'DISABLED' ? 'Enable Account' : disable_mutation.isPending ? 'Disabling...' : 'Disable Account'}
+							</button>
+							<button className="text-xs font-semibold w-full px-5 py-3 text-slate-900 cursor-pointer" onClick={handleCloseUserDetails}>
 								Close
 							</button>
 						</div>
 					</div>
 				</div>
 			)}
+			<AlertModal content={alertMessage} isOpen={openAlertModal} onClose={() => setOpenAlertModal(false)} />
 		</>
 	);
 };

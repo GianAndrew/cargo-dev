@@ -122,6 +122,9 @@ const OwnerDetails = () => {
 
 	const [openDocumentModal, setOpenDocumentModal] = useState<boolean>(false);
 
+	const [openDisableModal, setOpenDisableModal] = useState<boolean>(false);
+	const [disableReason, setDisableReason] = useState<string>('');
+
 	const [alertMessage, setAlertMessage] = useState({
 		title: '',
 		message: '',
@@ -172,6 +175,33 @@ const OwnerDetails = () => {
 		},
 	});
 
+	const disable_mutation = useMutation({
+		mutationFn: async (data: { owner_id: number | undefined; reason: string }) => {
+			const response = await api.post(`/api/admin/owners/${data.owner_id}/disable`, { reason: data.reason });
+			return response.data;
+		},
+		onSuccess(data) {
+			// Invalidate the owner query to refetch the updated data
+			queryClient.invalidateQueries({
+				queryKey: ['owner'],
+			});
+			queryClient.invalidateQueries({
+				queryKey: ['owners'],
+			});
+			console.log('data:', data);
+			setOpenDisableModal(false);
+		},
+		onError(error) {
+			if (isAxiosError(error)) {
+				setAlertMessage({
+					title: 'Error',
+					message: error.response?.data.message || error.message,
+				});
+				setOpenAlertModal(true);
+			}
+		},
+	});
+
 	const handleBackBtn = () => {
 		navigate('/rentals');
 	};
@@ -185,6 +215,9 @@ const OwnerDetails = () => {
 	};
 
 	const verdictBtn = (data: { owner_id: number | undefined; document_id: number | undefined; verdict: 'APPROVED' | 'REJECTED' }) => {
+		if (data.owner_id === undefined || data.document_id === undefined) {
+			return;
+		}
 		verdict_mutation.mutate({
 			owner_id: data.owner_id,
 			document_id: data.document_id,
@@ -296,6 +329,30 @@ const OwnerDetails = () => {
 							<div className="flex flex-col mt-4 gap-1 p-4 bg-white rounded-lg">
 								<p className="text-slate-400 text-xs">Submit At: {dayjs(owner_query.data?.documents?.created_at).format('MMMM D, YYYY h:mm A')}</p>
 								<p className="text-slate-400 text-xs">Doc Ref No. {owner_query.data?.documents?.reference_number}</p>
+							</div>
+						</div>
+
+						<div className="rounded-lg p-2 mt-2">
+							<p className="text-xs text-slate-500 font-medium">Account Action</p>
+							<div className="mt-2">
+								<p className="text-xs text-slate-400 font-normal">
+									Disabling the account will prevent the owner from accessing their account and vehicles will be set to unavailable.
+								</p>
+								{owner_query.data?.status === 'DISABLED' ? (
+									<button
+										className="flex items-center bg-slate-900 rounded-full py-2 px-3 mt-2 cursor-pointer"
+										onClick={() => {
+											disable_mutation.mutate({ owner_id: owner_query.data?.id, reason: disableReason });
+										}}
+										disabled={disable_mutation.isPending}
+									>
+										<span className="text-xs text-slate-100 font-normal">{disable_mutation.isPending ? 'Disabling Account...' : 'Enable Account'}</span>
+									</button>
+								) : (
+									<button className="flex items-center bg-slate-900 rounded-full py-2 px-3 mt-2 cursor-pointer" onClick={() => setOpenDisableModal(true)}>
+										<span className="text-xs text-slate-100 font-normal">Disable Account</span>
+									</button>
+								)}
 							</div>
 						</div>
 					</div>
@@ -462,6 +519,7 @@ const OwnerDetails = () => {
 					</div>
 				</div>
 			</div>
+			{/* document modal */}
 			{openDocumentModal && (
 				<div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.5)] ">
 					<div className="bg-white rounded-2xl shadow-lg p-6 w-full h-11/12 md:h-auto max-w-4xl m-2 overflow-auto">
@@ -502,6 +560,53 @@ const OwnerDetails = () => {
 						)}
 
 						<button className="text-xs font-medium cursor-pointer w-full flex items-center justify-center text-slate-900" onClick={() => setOpenDocumentModal(false)}>
+							Close
+						</button>
+					</div>
+				</div>
+			)}
+
+			{/* disable modal */}
+			{openDisableModal && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.5)] ">
+					<div className="bg-white rounded-2xl shadow-lg p-6 w-full h-1/2 md:h-auto max-w-2xl m-2 overflow-auto">
+						<div>
+							<p className="text-sm text-slate-900 font-medium">Disable Owner Account</p>
+						</div>
+						<div className="mt-4">
+							<p className="text-xs text-slate-500">Please provide a reason for disabling this account:</p>
+							<textarea
+								className="w-full mt-2 p-2 border border-slate-300 rounded-md text-xs text-slate-700 placeholder:text-slate-400 outline-0"
+								placeholder="Enter reason..."
+								rows={4}
+								maxLength={50}
+								value={disableReason}
+								onChange={(e) => setDisableReason(e.target.value)}
+							></textarea>
+						</div>
+
+						<div className="flex flex-col md:flex-row items-center my-4 gap-2 rounded-full p-2 bg-slate-100">
+							<button
+								className="w-full text-xs text-slate-50 bg-slate-900 rounded-full py-2 px-3 disabled:opacity-50"
+								disabled={disableReason.trim() === '' || disable_mutation.isPending}
+								onClick={() => {
+									disable_mutation.mutate({ owner_id: owner_query.data?.id, reason: disableReason });
+								}}
+							>
+								{disable_mutation.isPending ? 'Disabling...' : 'Disable Account'}
+							</button>
+							<button
+								className="w-full text-xs text-slate-900 bg-slate-50 rounded-full py-2 px-3 cursor-pointer"
+								onClick={() => {
+									setOpenDisableModal(false);
+									setDisableReason('');
+								}}
+							>
+								Cancel
+							</button>
+						</div>
+
+						<button className="text-xs font-medium w-full flex items-center justify-center text-slate-900 cursor-pointer" onClick={() => setOpenDisableModal(false)}>
 							Close
 						</button>
 					</div>
