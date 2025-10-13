@@ -1,5 +1,4 @@
 import { RequireAuth } from '@/components/RequireAuth';
-
 import LayoutNavBar from '@/components/LayoutNavBar';
 import Auth from '@/pages/Auth';
 import Bookings from '@/pages/Bookings';
@@ -13,6 +12,8 @@ import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } 
 import Vehicles from '@/pages/Vehicles';
 import OwnerDetails from '@/pages/OwnerDetails';
 import VehicleDetails from './pages/VehicleDetails';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsConditions from './pages/TermsConditions';
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -31,6 +32,8 @@ const App = () => {
 				<Route path="/">
 					<Route index element={<Home />} />
 					<Route path="/auth" element={<Auth />} />
+					<Route path="/privacy-policy" element={<PrivacyPolicy />} />
+					<Route path="/terms-conditions" element={<TermsConditions />} />
 				</Route>
 
 				{/* private routes */}
