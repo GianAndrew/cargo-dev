@@ -28,23 +28,4 @@ export default defineConfig({
 		},
 	},
 	base: '/cargo-dev',
-	build: {
-		rollupOptions: {
-			output: {
-				manualChunks: {
-					// Core React libraries
-					'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-
-					// HTTP client and data fetching
-					'data-vendor': ['axios', '@tanstack/react-query'],
-
-					// Charts and visualization
-					'chart-vendor': ['chart.js', 'react-chartjs-2'],
-
-					// UI and utilities
-					'ui-vendor': ['lucide-react', 'dayjs'],
-				},
-			},
-		},
-	},
 });
