@@ -6,6 +6,9 @@ import path from 'path';
 
 // https://vite.dev/config/
 export default defineConfig({
+	server: {
+		allowedHosts: ['cargo-ix88r.ondigitalocean.app', 'cargorental.me'],
+	},
 	plugins: [
 		react(),
 		tailwindcss(),
