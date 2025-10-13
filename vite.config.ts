@@ -7,6 +7,7 @@ import path from 'path';
 // https://vite.dev/config/
 export default defineConfig({
 	server: {
+		port: 8080,
 		allowedHosts: ['cargo-ix88r.ondigitalocean.app', 'cargorental.me'],
 	},
 	plugins: [
