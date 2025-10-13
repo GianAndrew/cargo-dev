@@ -3,7 +3,7 @@ const Home = () => {
 		<>
 			{/* Hero Section */}
 			<div className="bg-white w-full h-screen flex flex-col">
-				<div className="m-8 h-full">
+				<div className="m-4 md:m-8 h-full">
 					<div className="relative flex flex-col  h-full w-full py-4 px-8 rounded-4xl">
 						<video autoPlay loop muted playsInline className="absolute top-0 left-0 w-full h-full object-cover rounded-4xl z-0">
 							<source src="/video/landing-video-bg.mp4" type="video/mp4" />
@@ -50,7 +50,9 @@ const Home = () => {
 					<div className="text-center mb-16">
 						<span className="text-sm font-semibold text-slate-900 uppercase tracking-wide">About Cargo</span>
 						<h2 className="text-4xl md:text-5xl font-bold text-slate-900 mt-4 mb-6">A Fresh Start in Vehicle Rental</h2>
-						<p className="text-slate-600 text-lg max-w-2xl mx-auto">We're launching a new era of vehicle rentals - simple, accessible, and built with you in mind.</p>
+						<p className="text-slate-600 text-sm md:text-md max-w-2xl mx-auto">
+							We're launching a new era of vehicle rentals - simple, accessible, and built with you in mind.
+						</p>
 					</div>
 
 					{/* Main Content Grid */}
@@ -78,11 +80,11 @@ const Home = () => {
 						{/* Right: Text Content */}
 						<div className="space-y-6">
 							<h3 className="text-3xl font-bold text-slate-900">Your Journey Starts Here</h3>
-							<p className="text-slate-600 leading-relaxed">
+							<p className="text-slate-600 leading-relaxed text-sm md:text-md">
 								Cargo is a brand-new platform designed to revolutionize how you rent vehicles. We're just beginning our journey, and we're excited to have you join us
 								from the very start. Our mission is simple: make mobility accessible, affordable, and hassle-free for everyone.
 							</p>
-							<p className="text-slate-600 leading-relaxed">
+							<p className="text-slate-600 leading-relaxed text-sm md:text-md">
 								Whether you're planning a road trip, need a vehicle for work, or want to explore the city, we're building a platform that connects you with quality
 								vehicles from trusted owners. Every listing is carefully verified to ensure your safety and satisfaction.
 							</p>
@@ -120,7 +122,9 @@ const Home = () => {
 								</svg>
 							</div>
 							<h4 className="text-xl font-bold text-slate-900 mb-3">Trusted & Safe</h4>
-							<p className="text-slate-600">All vehicles are thoroughly inspected and insured. Your safety is our top priority with 24/7 roadside assistance.</p>
+							<p className="text-slate-600 text-sm md:text-md">
+								All vehicles are thoroughly inspected and insured. Your safety is our top priority with 24/7 roadside assistance.
+							</p>
 						</div>
 
 						{/* Feature 2 */}
@@ -131,7 +135,9 @@ const Home = () => {
 								</svg>
 							</div>
 							<h4 className="text-xl font-bold text-slate-900 mb-3">Instant Booking</h4>
-							<p className="text-slate-600">Book your vehicle in seconds with our streamlined process. No paperwork hassles, just quick and easy reservations.</p>
+							<p className="text-slate-600 text-sm md:text-md">
+								Book your vehicle in seconds with our streamlined process. No paperwork hassles, just quick and easy reservations.
+							</p>
 						</div>
 
 						{/* Feature 3 */}
@@ -147,18 +153,20 @@ const Home = () => {
 								</svg>
 							</div>
 							<h4 className="text-xl font-bold text-slate-900 mb-3">Best Prices</h4>
-							<p className="text-slate-600">Transparent pricing with no hidden fees. Get competitive rates and flexible payment options that work for you.</p>
+							<p className="text-slate-600 text-sm md:text-md">
+								Transparent pricing with no hidden fees. Get competitive rates and flexible payment options that work for you.
+							</p>
 						</div>
 					</div>
 
 					{/* CTA Section */}
 					<div className="mt-16 bg-gradient-to-r from-slate-900 to-slate-700 rounded-3xl p-12 text-center">
-						<h3 className="text-3xl md:text-4xl font-bold text-white mb-4">Be Part of Our Launch</h3>
-						<p className="text-slate-300 text-lg mb-8 max-w-2xl mx-auto">
+						<h3 className="text-xl md:text-2xl font-bold text-white mb-4">Be Part of Our Launch</h3>
+						<p className="text-slate-300 text-sm md:text-md mb-8 max-w-2xl mx-auto">
 							Join us as we begin this exciting journey. Be among the first to experience a new way of renting vehicles.
 						</p>
 						<div className="flex flex-col sm:flex-row gap-4 justify-center">
-							<button className="bg-white text-slate-900 px-8 py-3 rounded-full font-semibold hover:bg-slate-100 transition">Explore Vehicles</button>
+							<button className="text-sm md:text-md bg-white text-slate-900 px-8 py-3 rounded-full font-semibold hover:bg-slate-100 transition">Explore Vehicles</button>
 						</div>
 					</div>
 				</div>
@@ -171,7 +179,7 @@ const Home = () => {
 						{/* Company Info */}
 						<div className="col-span-1 md:col-span-2">
 							<img src={'/logo/cargo-logo-black.png'} alt="Cargo Logo" width={120} height={40} className="mb-2" />
-							<p className="text-slate-500 text-sm mb-4 max-w-md">
+							<p className="text-slate-500 text-xs md:text-sm mb-4 max-w-md">
 								Your trusted partner for vehicle rentals. Find, reserve, and get the perfect vehicle for your journey, whether it's a quick city drive or a weekend
 								adventure.
 							</p>
