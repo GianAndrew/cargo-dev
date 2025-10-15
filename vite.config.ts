@@ -8,7 +8,7 @@ import path from 'path';
 export default defineConfig({
 	server: {
 		port: 8080,
-		allowedHosts: ['api.cargorental.me', 'cargorental.me'],
+		allowedHosts: ['api.cargorental.me', 'cargorental.me', 'wwww.cargorental.me', 'localhost'],
 	},
 	plugins: [
 		react(),

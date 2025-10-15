@@ -334,7 +334,16 @@ const OwnerDetails = () => {
 
 						<div className="rounded-lg p-2 mt-2">
 							<p className="text-xs text-slate-500 font-medium">Account Action</p>
-							<div className="mt-2">
+							<div className="mt-2 space-y-2">
+								<div className="flex">
+									<h1
+										className={`${
+											owner_query.data?.status === 'DISABLED' ? 'text-red-500 bg-red-100' : 'text-green-500 bg-green-100'
+										} py-2 px-4 rounded-full text-xs font-medium`}
+									>
+										{owner_query.data?.status === 'DISABLED' ? 'Disabled' : 'Enabled'}
+									</h1>
+								</div>
 								<p className="text-xs text-slate-400 font-normal">
 									Disabling the account will prevent the owner from accessing their account and vehicles will be set to unavailable.
 								</p>

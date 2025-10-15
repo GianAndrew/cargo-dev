@@ -90,7 +90,7 @@ const Home = () => {
 							</p>
 
 							{/* Stats */}
-							<div className="grid grid-cols-3 gap-4 pt-6">
+							<div className="grid grid-cols-1md:grid-cols-3 gap-4 pt-6">
 								<div className="text-center p-4 bg-slate-50 rounded-xl">
 									<p className="text-3xl font-bold text-slate-900">New</p>
 									<p className="text-sm text-slate-600 mt-1">Platform</p>
