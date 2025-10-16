@@ -14,6 +14,7 @@ import OwnerDetails from '@/pages/OwnerDetails';
 import VehicleDetails from './pages/VehicleDetails';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsConditions from './pages/TermsConditions';
+import LoginDeleteAccount from './pages/LoginDeleteAccount';
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -34,6 +35,9 @@ const App = () => {
 					<Route path="/auth" element={<Auth />} />
 					<Route path="/privacy-policy" element={<PrivacyPolicy />} />
 					<Route path="/terms-conditions" element={<TermsConditions />} />
+					<Route path="/delete-account">
+						<Route index element={<LoginDeleteAccount />} />
+					</Route>
 				</Route>
 
 				{/* private routes */}
