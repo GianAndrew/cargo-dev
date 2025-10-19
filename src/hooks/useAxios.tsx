@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = process.env.REACT_APP_API_URL;
-// const BASE_URL = 'http://localhost:3000';
+const BASE_URL = 'https://api.cargorental.me';
 
 const useAxios = () => {
 	const token_session = sessionStorage.getItem('token');
