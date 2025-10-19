@@ -21,7 +21,10 @@ const Home = () => {
 							</div>
 
 							<div>
-								<button onClick={() => navigate('/get-app')} className="bg-white/10 backdrop-blur-xl text-white/90 text-sm py-2 px-4 rounded-full cursor-pointer">
+								<button
+									onClick={() => navigate('/get-app')}
+									className="bg-white backdrop-blur-xl text-slate-900 text-sm  font-medium py-2 px-4 rounded-full cursor-pointer"
+								>
 									Get the app
 								</button>{' '}
 							</div>
@@ -164,7 +167,12 @@ const Home = () => {
 							Join us as we begin this exciting journey. Be among the first to experience a new way of renting vehicles.
 						</p>
 						<div className="flex flex-col sm:flex-row gap-4 justify-center">
-							<button className="bg-white text-slate-900 px-8 py-3 rounded-full font-semibold hover:bg-slate-100 transition">Explore Vehicles</button>
+							<button
+								className="bg-white text-slate-900 px-8 py-3 rounded-full font-semibold hover:bg-slate-100 transition cursor-pointer"
+								onClick={() => navigate('/get-app')}
+							>
+								Explore Vehicles
+							</button>
 						</div>
 					</div>
 				</div>
