@@ -1,7 +1,23 @@
-import { useNavigate } from 'react-router-dom';
+import { ArrowRight, CheckCircle, Download } from 'lucide-react';
 
 const Home = () => {
-	const navigate = useNavigate();
+	const downloadUrl = 'https://cargo-rental-bucket.nyc3.cdn.digitaloceanspaces.com/apk-file/app-release.apk';
+
+	const handleDownload = () => {
+		window.open(downloadUrl, '_blank');
+	};
+
+	const carBrands = [
+		{ name: 'Toyota', logo: '/brands/toyota.png' },
+		{ name: 'Honda', logo: '/brands/honda.png' },
+		{ name: 'Mitsubishi', logo: '/brands/mitsubishi.png' },
+		{ name: 'Nissan', logo: '/brands/nissan.png' },
+		{ name: 'Ford', logo: '/brands/ford.png' },
+		{ name: 'Chevrolet', logo: '/brands/chevrolet.png' },
+		{ name: 'Mazda', logo: '/brands/mazda.png' },
+		{ name: 'Isuzu', logo: '/brands/isuzu.png' },
+		{ name: 'Suzuki', logo: '/brands/suzuki.png' },
+	];
 
 	return (
 		<>
@@ -22,11 +38,14 @@ const Home = () => {
 
 							<div>
 								<button
-									onClick={() => navigate('/get-app')}
+									onClick={(e) => {
+										e.preventDefault();
+										document.getElementById('download')?.scrollIntoView({ behavior: 'smooth' });
+									}}
 									className="bg-white backdrop-blur-xl text-slate-900 text-sm  font-medium py-2 px-4 rounded-full cursor-pointer"
 								>
 									Get the app
-								</button>{' '}
+								</button>
 							</div>
 						</div>
 						<div className="h-full flex items-center z-10">
@@ -51,6 +70,62 @@ const Home = () => {
 					</div>
 				</div>
 			</div>
+
+			{/* Car Brands Section */}
+			<section className="py-10 overflow-hidden">
+				<div className="container mx-auto px-8">
+					<div className="text-center mb-12">
+						<h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-4">Available Vehicle Brands</h2>
+						<p className="text-slate-600 text-sm md:text-base max-w-2xl mx-auto">Choose from a wide selection of trusted automotive brands for your rental needs</p>
+					</div>
+
+					{/* Marquee Animation */}
+					<div className="relative">
+						{/* Add custom CSS animation */}
+						<style>{`
+							@keyframes marquee {
+								0% { transform: translateX(0); }
+								100% { transform: translateX(-50%); }
+							}
+							.animate-marquee {
+								animation: marquee 30s linear infinite;
+							}
+							.animate-marquee:hover {
+								animation-play-state: paused;
+							}
+						`}</style>
+
+						<div className="flex">
+							<div className="flex animate-marquee">
+								{/* First set of brands */}
+								{carBrands.map((brand, index) => (
+									<div key={`brand-1-${index}`} className="flex-shrink-0 mx-4">
+										<div className="bg-white p-6 md:p-8 rounded-2xl hover:shadow-lg transition-all duration-300 flex items-center justify-center group hover:scale-105 w-32 md:w-40 h-24 md:h-28">
+											<img
+												src={brand.logo}
+												alt={brand.name}
+												className="h-12 md:h-16 w-auto object-contain grayscale group-hover:grayscale-0 transition-all"
+											/>
+										</div>
+									</div>
+								))}
+								{/* Duplicate set for seamless loop */}
+								{carBrands.map((brand, index) => (
+									<div key={`brand-2-${index}`} className="flex-shrink-0 mx-4">
+										<div className="bg-white p-6 md:p-8 rounded-2xl hover:shadow-lg transition-all duration-300 flex items-center justify-center group hover:scale-105 w-32 md:w-40 h-24 md:h-28">
+											<img
+												src={brand.logo}
+												alt={brand.name}
+												className="h-12 md:h-16 w-auto object-contain grayscale group-hover:grayscale-0 transition-all"
+											/>
+										</div>
+									</div>
+								))}
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
 
 			{/* About Us Section */}
 			<section id="about" className="bg-white py-20">
@@ -159,24 +234,134 @@ const Home = () => {
 							<p className="text-slate-600">Transparent pricing with no hidden fees. Get competitive rates and flexible payment options that work for you.</p>
 						</div>
 					</div>
+				</div>
+			</section>
 
-					{/* CTA Section */}
-					<div className="mt-16 bg-gradient-to-r from-slate-900 to-slate-700 rounded-3xl p-12 text-center">
-						<h3 className="text-3xl md:text-4xl font-bold text-white mb-4">Be Part of Our Launch</h3>
-						<p className="text-slate-300 text-lg mb-8 max-w-2xl mx-auto">
-							Join us as we begin this exciting journey. Be among the first to experience a new way of renting vehicles.
-						</p>
-						<div className="flex flex-col sm:flex-row gap-4 justify-center">
-							<button
-								className="bg-white text-slate-900 px-8 py-3 rounded-full font-semibold hover:bg-slate-100 transition cursor-pointer"
-								onClick={() => navigate('/get-app')}
-							>
-								Explore Vehicles
-							</button>
+			{/* Download APK Section */}
+			<section id="download" className="py-10">
+				<div className="container mx-auto px-8">
+					{/* Download CTA Section */}
+					<div className="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-800 py-20 rounded-4xl">
+						<div className="container mx-auto px-4">
+							<div className="max-w-4xl mx-auto text-center">
+								<div className="inline-block mb-6">
+									<div className="bg-white/10 backdrop-blur-xl p-4 rounded-full">
+										<img src="/logo/cargo-logo-white.png" alt="CarGO Logo" className="w-12 h-12 object-contain" />
+									</div>
+								</div>
+								<h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">Download the CarGO App</h2>
+								<p className="text-slate-300 text-sm mb-10 max-w-2xl mx-auto">
+									Get the full experience with our mobile app. Book vehicles, track rentals, and manage everything on the go.
+								</p>
+
+								<div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+									<button
+										onClick={handleDownload}
+										className="group bg-white text-slate-900 px-6 py-3 rounded-full font-bold text-sm
+									hover:bg-slate-100 focus:outline-none focus:ring-4 focus:ring-white/50
+									transform hover:scale-105 active:scale-95 transition-all duration-200 shadow-2xl
+									flex items-center gap-3"
+									>
+										<Download className="w-6 h-6 group-hover:animate-bounce" />
+										Download for Android
+										<ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+									</button>
+								</div>
+
+								<div className="mt-10 flex flex-wrap justify-center gap-8 pt-8 border-t border-white/10">
+									<div className="flex items-center gap-2 text-white">
+										<CheckCircle className="w-5 h-5 text-green-400" />
+										<span>Free to Download</span>
+									</div>
+									<div className="flex items-center gap-2 text-white">
+										<CheckCircle className="w-5 h-5 text-green-400" />
+										<span>No Subscription Required</span>
+									</div>
+									<div className="flex items-center gap-2 text-white">
+										<CheckCircle className="w-5 h-5 text-green-400" />
+										<span>Regular Updates</span>
+									</div>
+								</div>
+
+								<p className="text-slate-400 text-sm mt-8">* Compatible with Android 6.0 and above. File size: ~200MB</p>
+							</div>
 						</div>
 					</div>
 				</div>
 			</section>
+
+			<section>
+				{/* How It Works Section */}
+				<div className="py-10">
+					<div className="container mx-auto px-4">
+						<div className="max-w-6xl mx-auto">
+							<div className="text-center mb-16">
+								<h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 mb-4">How to Get Started</h2>
+								<p className="text-slate-600 text-sm max-w-2xl mx-auto">Three simple steps to start renting vehicles</p>
+							</div>
+
+							<div className="grid md:grid-cols-3 gap-8">
+								{[
+									{ step: '1', title: 'Download the App', description: 'Click the download button to get the APK file on your Android device' },
+									{ step: '2', title: 'Install & Sign Up', description: 'Install the app and create your account in seconds' },
+									{ step: '3', title: 'Start Renting', description: 'Browse vehicles and book your first ride instantly' },
+								].map((item, index) => (
+									<div key={index} className="relative">
+										<div className="bg-white rounded-2xl p-8 transition-all duration-300">
+											<div className="absolute -top-6 left-8">
+												<div className="w-12 h-12 bg-gradient-to-r from-slate-900 to-slate-700 rounded-full flex items-center justify-center text-white font-bold text-xl">
+													{item.step}
+												</div>
+											</div>
+											<div className="pt-8">
+												<h3 className="text-xl font-bold text-slate-900 mb-3">{item.title}</h3>
+												<p className="text-slate-600 text-sm">{item.description}</p>
+											</div>
+										</div>
+										{index < 2 && (
+											<div className="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2">
+												<ArrowRight className="w-8 h-8 text-slate-300" />
+											</div>
+										)}
+									</div>
+								))}
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			{/* FAQ Section */}
+			<div className="container mx-auto px-4 py-20">
+				<div className="text-center mb-16">
+					<h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Frequently Asked Questions</h2>
+				</div>
+
+				<div className="space-y-4">
+					{[
+						{
+							question: 'Is the app free to download?',
+							answer: 'Yes! The CarGO app is completely free to download and use. You only pay for the vehicle rentals you book.',
+						},
+						{
+							question: 'What devices are supported?',
+							answer: 'Currently, the app is available for Android devices running Android 6.0 or higher. iOS version coming soon!',
+						},
+						{
+							question: 'How do I install the APK file?',
+							answer: 'After downloading, go to your device Settings > Security > Enable "Install from Unknown Sources", then open the downloaded APK file to install.',
+						},
+					].map((faq, index) => (
+						<details key={index} className="bg-slate-50 rounded-xl p-6 transition-all duration-300 group">
+							<summary className="font-bold text-slate-900 cursor-pointer flex items-center justify-between">
+								{faq.question}
+								<ArrowRight className="w-5 h-5 text-slate-400 group-open:rotate-90 transition-transform" />
+							</summary>
+							<p className="text-slate-600 text-sm mt-4 leading-relaxed">{faq.answer}</p>
+						</details>
+					))}
+				</div>
+			</div>
 
 			{/* Footer */}
 			<footer className="bg-white">
