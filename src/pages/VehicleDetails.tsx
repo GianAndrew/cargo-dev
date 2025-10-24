@@ -101,8 +101,8 @@ const VehicleDetails = () => {
 	});
 
 	const verdict_mutation = useMutation({
-		mutationFn: async (data: { car_id: number | undefined; document_id: number | undefined; verdict: 'APPROVED' | 'REJECTED' }) => {
-			const response = await api.post(`/api/admin/vehicles/${data.car_id}/documents/${data.document_id}/verdict`, { verdict: data.verdict, reason_reason: rejectReason });
+		mutationFn: async (data: { car_id: number | undefined; document_id: number | undefined; verdict: 'APPROVED' | 'REJECTED'; reject_reason: string | null }) => {
+			const response = await api.post(`/api/admin/vehicles/${data.car_id}/documents/${data.document_id}/verdict`, { verdict: data.verdict, reject_reason: data.reject_reason });
 			return response.data;
 		},
 		onSuccess: () => {
@@ -140,8 +140,21 @@ const VehicleDetails = () => {
 			car_id: data.car_id,
 			document_id: data.document_id,
 			verdict: data.verdict,
+			reject_reason: null,
 		});
 		setOpenDocumentModal(false);
+	};
+
+	const rejectDocumentBtn = () => {
+		const form_data = {
+			car_id: vehicle_query.data?.id,
+			document_id: vehicle_query.data?.documents?.id,
+			verdict: 'REJECTED' as const,
+			reject_reason: rejectReason || null,
+		};
+		verdict_mutation.mutate(form_data);
+		setOpenRejectReasonModal(false);
+		setRejectReason('');
 	};
 
 	if (vehicle_query.isPending) {
@@ -468,15 +481,7 @@ const VehicleDetails = () => {
 							<button
 								className="flex-1 text-sm font-medium text-white bg-slate-600 hover:bg-slate-700 rounded-full py-2.5 px-4 transition-colors disabled:bg-slate-300 disabled:cursor-not-allowed"
 								disabled={rejectReason.trim().length < 10}
-								onClick={() => {
-									verdictBtn({
-										car_id: vehicle_query.data?.id,
-										document_id: vehicle_query.data?.documents?.id,
-										verdict: 'REJECTED',
-									});
-									setOpenRejectReasonModal(false);
-									setRejectReason('');
-								}}
+								onClick={rejectDocumentBtn}
 							>
 								Confirm Rejection
 							</button>

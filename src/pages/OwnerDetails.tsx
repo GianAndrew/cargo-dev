@@ -151,8 +151,8 @@ const OwnerDetails = () => {
 	});
 
 	const verdict_mutation = useMutation({
-		mutationFn: async (data: { owner_id: number | undefined; document_id: number | undefined; verdict: 'APPROVED' | 'REJECTED' }) => {
-			const response = await api.post(`/api/admin/owners/${data.owner_id}/documents/${data.document_id}/verdict`, { verdict: data.verdict, reason_reject: documentRejectReason });
+		mutationFn: async (data: { owner_id: number | undefined; document_id: number | undefined; verdict: 'APPROVED' | 'REJECTED'; reason_reject: string | null }) => {
+			const response = await api.post(`/api/admin/owners/${data.owner_id}/documents/${data.document_id}/verdict`, { verdict: data.verdict, reason_reject: data.reason_reject });
 			return response.data;
 		},
 		onSuccess: () => {
@@ -216,7 +216,7 @@ const OwnerDetails = () => {
 		navigate(`/vehicles/${vehicle_id}`);
 	};
 
-	const verdictBtn = (data: { owner_id: number | undefined; document_id: number | undefined; verdict: 'APPROVED' | 'REJECTED' }) => {
+	const verdictBtn = (data: { owner_id: number | undefined; document_id: number | undefined; verdict: 'APPROVED' | 'REJECTED'; reason_reject?: string | null }) => {
 		if (data.owner_id === undefined || data.document_id === undefined) {
 			return;
 		}
@@ -224,6 +224,7 @@ const OwnerDetails = () => {
 			owner_id: data.owner_id,
 			document_id: data.document_id,
 			verdict: data.verdict,
+			reason_reject: data.reason_reject ?? null,
 		});
 		setOpenDocumentModal(false);
 	};
@@ -232,6 +233,19 @@ const OwnerDetails = () => {
 		const matchesCategory = category === 'all' || cars.status === category.toUpperCase();
 		const matchesSearch = search ? cars.car_brand.toLowerCase().includes(search.toLowerCase()) || cars.car_model?.toLowerCase().includes(search.toLowerCase()) : true;
 		return matchesCategory && matchesSearch;
+	};
+
+	const rejectDocumentBtn = () => {
+		const form_data = {
+			owner_id: owner_query.data?.id,
+			document_id: owner_query.data?.documents?.id,
+			verdict: 'REJECTED' as const,
+			reason_reject: documentRejectReason || null,
+		};
+		verdict_mutation.mutate(form_data);
+		console.log(JSON.stringify(form_data, null, 2));
+		setOpenDocumentReasonModal(false);
+		setDocumentRejectReason('');
 	};
 
 	const total = owner_query.data?.cars.length ?? 0;
@@ -639,15 +653,7 @@ const OwnerDetails = () => {
 							<button
 								className="flex-1 text-sm font-medium text-white bg-slate-600 hover:bg-slate-700 rounded-full py-2.5 px-4 transition-colors disabled:bg-slate-300 disabled:cursor-not-allowed"
 								disabled={documentRejectReason.trim().length < 10}
-								onClick={() => {
-									verdictBtn({
-										owner_id: owner_query.data?.id,
-										document_id: owner_query.data?.documents?.id,
-										verdict: 'REJECTED',
-									});
-									setOpenDocumentReasonModal(false);
-									setDocumentRejectReason('');
-								}}
+								onClick={rejectDocumentBtn}
 							>
 								Confirm Rejection
 							</button>
