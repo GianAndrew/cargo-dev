@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 type TBooking = {
 	id: number;
 	reference_number: string;
-	status: 'PENDING' | 'TO_PAY' | 'RENTED' | 'COMPLETED' | 'REJECTED';
+	status: 'PENDING' | 'TO_PAY' | 'RENTED' | 'COMPLETED' | 'REJECTED' | 'CANCELLED' | 'DECLINED';
 	created_at: Date;
 	downpay_is_paid: boolean;
 	file_folder: string;
@@ -79,8 +79,12 @@ const BookStatus = (status: TBooking['status']) => {
 			return { class: 'bg-blue-100 text-blue-500', value: 'Rented' };
 		case 'COMPLETED':
 			return { class: 'bg-emerald-100 text-emerald-500', value: 'Completed' };
+		case 'CANCELLED':
+			return { class: 'bg-red-100 text-red-500', value: 'Cancelled' };
 		case 'REJECTED':
 			return { class: 'bg-red-100 text-red-500', value: 'Rejected' };
+		case 'DECLINED':
+			return { class: 'bg-red-100 text-red-500', value: 'Declined' };
 		default:
 			return { class: 'bg-slate-100 text-slate-500', value: 'Unknown' };
 	}

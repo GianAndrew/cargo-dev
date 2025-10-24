@@ -18,7 +18,9 @@ interface ICar {
 	car_model?: string | null;
 	car_year?: number | null;
 	car_number_plate?: string | null;
-	vehicle_type: string;
+	is_with_driver: string;
+	no_of_seats?: number | null;
+	vehicle_type: 'sedan' | 'suv' | 'van' | 'truck' | 'hatchback' | 'pickup';
 	status: string;
 	created_at: Date;
 	car_images: CarImage[];
@@ -43,6 +45,9 @@ const VehiclesPage = () => {
 	const [search, setSearch] = useState<string>('');
 
 	const [category, setCategory] = useState<string>('all');
+	const [vehicleTypeFilter, setVehicleTypeFilter] = useState<string>('all');
+	const [seatsFilter, setSeatsFilter] = useState<string>('all');
+	const [driverFilter, setDriverFilter] = useState<string>('all');
 
 	// pagination state
 	const [page, setPage] = useState<number>(1);
@@ -56,6 +61,7 @@ const VehiclesPage = () => {
 		queryKey: ['vehicles'],
 		queryFn: async () => {
 			const response = await api.get('/api/admin/vehicles');
+			console.log(response.data);
 			return response.data;
 		},
 	});
@@ -63,7 +69,10 @@ const VehiclesPage = () => {
 	const filteredCars = (cars: ICar) => {
 		const matchesCategory = category === 'all' || cars.status === category.toUpperCase();
 		const matchesSearch = search ? cars.car_brand.toLowerCase().includes(search.toLowerCase()) || cars.car_model?.toLowerCase().includes(search.toLowerCase()) : true;
-		return matchesCategory && matchesSearch;
+		const matchesVehicleType = vehicleTypeFilter === 'all' || cars.vehicle_type === vehicleTypeFilter;
+		const matchesSeats = seatsFilter === 'all' || cars.no_of_seats?.toString() === seatsFilter;
+		const matchesDriver = driverFilter === 'all' || cars.is_with_driver === driverFilter;
+		return matchesCategory && matchesSearch && matchesVehicleType && matchesSeats && matchesDriver;
 	};
 
 	const openVehicleDetails = (vehicle_id: number) => {
@@ -77,7 +86,7 @@ const VehiclesPage = () => {
 
 	useEffect(() => {
 		setPage(1);
-	}, [category, search, vehicles_query.data]);
+	}, [category, search, vehicleTypeFilter, seatsFilter, driverFilter, vehicles_query.data]);
 
 	useEffect(() => {
 		if (page > totalPages) {
@@ -111,6 +120,7 @@ const VehiclesPage = () => {
 	return (
 		<div className="bg-slate-50 min-h-screen p-5 w-full">
 			<div className="my-2 flex flex-col md:flex-row justify-between items-start gap-2 ">
+				{/* filter */}
 				<div>
 					<h1 className="text-lg font-medium text-slate-700">{vehicles_query.data.filter(filteredCars).length} Vehicles</h1>
 					<p className="text-sm font-normal text-slate-500">Manage vehicles and their details</p>
@@ -166,7 +176,67 @@ const VehiclesPage = () => {
 							<span>Rejected</span>
 						</button>
 					</div>
+
+					{/* Additional Filters */}
+					<div className="mt-4 flex flex-wrap items-center gap-2">
+						{/* Vehicle Type Filter */}
+						<select
+							value={vehicleTypeFilter}
+							onChange={(e) => setVehicleTypeFilter(e.target.value)}
+							className="bg-white text-slate-700 text-xs px-3 py-1.5 rounded-full border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900 cursor-pointer"
+						>
+							<option value="all">All Types</option>
+							<option value="sedan">Sedan</option>
+							<option value="suv">SUV</option>
+							<option value="van">Van</option>
+							<option value="truck">Truck</option>
+							<option value="hatchback">Hatchback</option>
+							<option value="pickup">Pickup</option>
+						</select>
+
+						{/* Seats Filter */}
+						<select
+							value={seatsFilter}
+							onChange={(e) => setSeatsFilter(e.target.value)}
+							className="bg-white text-slate-700 text-xs px-3 py-1.5 rounded-full border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900 cursor-pointer"
+						>
+							<option value="all">All Seats</option>
+							<option value="2">2 Seaters</option>
+							<option value="4">4 Seaters</option>
+							<option value="5">5 Seaters</option>
+							<option value="6">6 Seaters</option>
+							<option value="7">7 Seaters</option>
+							<option value="8">8 Seaters</option>
+							<option value="10">10+ Seaters</option>
+						</select>
+
+						{/* Driver Option Filter */}
+						<select
+							value={driverFilter}
+							onChange={(e) => setDriverFilter(e.target.value)}
+							className="bg-white text-slate-700 text-xs px-3 py-1.5 rounded-full border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900 cursor-pointer"
+						>
+							<option value="all">All Driver Options</option>
+							<option value="with_driver">With Driver</option>
+							<option value="without_driver">Without Driver</option>
+						</select>
+
+						{/* Clear Filters Button */}
+						{(vehicleTypeFilter !== 'all' || seatsFilter !== 'all' || driverFilter !== 'all') && (
+							<button
+								onClick={() => {
+									setVehicleTypeFilter('all');
+									setSeatsFilter('all');
+									setDriverFilter('all');
+								}}
+								className="bg-slate-100 text-slate-700 text-xs px-3 py-1.5 rounded-full hover:bg-slate-200 transition-colors"
+							>
+								Clear Filters
+							</button>
+						)}
+					</div>
 				</div>
+
 				<div className="flex items-center gap-2 w-full md:max-w-60 rounded-full py-2.5 px-3 bg-white">
 					<Search size={14} className="text-slate-400" />
 					<input

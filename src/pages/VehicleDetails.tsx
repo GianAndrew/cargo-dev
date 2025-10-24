@@ -36,6 +36,7 @@ interface IVehicle {
 	car_transmission: string;
 	car_fuel_type: string;
 	car_number_plate?: string | null;
+	no_of_seats?: number | null;
 	vehicle_type: string;
 	rate_type?: string | null;
 	price_rate?: number | null;
@@ -75,6 +76,8 @@ const VehicleDetails = () => {
 	const { vehicle_id } = useParams();
 
 	const [openDocumentModal, setOpenDocumentModal] = useState<boolean>(false);
+	const [openRejectReasonModal, setOpenRejectReasonModal] = useState<boolean>(false);
+	const [rejectReason, setRejectReason] = useState<string>('');
 
 	const [alertMessage, setAlertMessage] = useState({
 		title: '',
@@ -99,7 +102,7 @@ const VehicleDetails = () => {
 
 	const verdict_mutation = useMutation({
 		mutationFn: async (data: { car_id: number | undefined; document_id: number | undefined; verdict: 'APPROVED' | 'REJECTED' }) => {
-			const response = await api.post(`/api/admin/vehicles/${data.car_id}/documents/${data.document_id}/verdict`, { verdict: data.verdict });
+			const response = await api.post(`/api/admin/vehicles/${data.car_id}/documents/${data.document_id}/verdict`, { verdict: data.verdict, reason_reason: rejectReason });
 			return response.data;
 		},
 		onSuccess: () => {
@@ -189,6 +192,25 @@ const VehicleDetails = () => {
 								{vehicle_query.data.car_brand} {vehicle_query.data.car_model} ({vehicle_query.data.car_year})
 							</h1>
 						</div>
+						{/* owner */}
+						<div className="bg-slate-50 p-4 rounded-lg flex items-center justify-between">
+							<div className="flex flex-row items-center gap-2">
+								<img
+									src={`${SPACES_ENDPOINT}/${vehicle_query.data?.owner?.profile_file_folder}/${vehicle_query.data?.owner?.profile_pic_key}`}
+									className="w-8 h-8 rounded-full"
+									alt=""
+								/>
+								<h2 className="text-md font-medium text-slate-700">{vehicle_query.data?.owner?.car_rental_name}</h2>
+							</div>
+							<div>
+								<button
+									onClick={() => navigate(`/rentals/${vehicle_query.data?.owner?.id}`)}
+									className="rounded-full bg-slate-900 text-slate-50 text-xs py-2 px-4 cursor-pointer"
+								>
+									View
+								</button>
+							</div>
+						</div>
 						{/* details */}
 						<div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-4 bg-slate-50 p-4 rounded-lg">
 							<div>
@@ -208,10 +230,8 @@ const VehicleDetails = () => {
 								<span className="text-slate-500 text-xs font-medium">{vehicle_query.data.car_transmission}</span>
 							</div>
 							<div>
-								<p className="text-xs font-medium text-slate-900">Model</p>
-								<span className="text-slate-500 text-xs font-medium">
-									{vehicle_query.data.car_model} {vehicle_query.data.car_year}
-								</span>
+								<p className="text-xs font-medium text-slate-900">Seats</p>
+								<span className="text-slate-500 text-xs font-medium">{vehicle_query.data.no_of_seats} Seaters</span>
 							</div>
 							<div>
 								<p className="text-xs font-medium text-slate-900">Driver</p>
@@ -373,7 +393,10 @@ const VehicleDetails = () => {
 								</button>
 								<button
 									className="w-full text-xs text-slate-900 bg-slate-50 rounded-full py-2 px-3"
-									onClick={() => verdictBtn({ car_id: vehicle_query.data?.id, document_id: vehicle_query.data?.documents?.id, verdict: 'REJECTED' })}
+									onClick={() => {
+										setOpenDocumentModal(false);
+										setOpenRejectReasonModal(true);
+									}}
 								>
 									Reject
 								</button>
@@ -383,6 +406,81 @@ const VehicleDetails = () => {
 						<button className="text-xs font-medium cursor-pointer w-full flex items-center justify-center text-slate-900" onClick={() => setOpenDocumentModal(false)}>
 							Close
 						</button>
+					</div>
+				</div>
+			)}
+
+			{/* Reason to reject the document */}
+			{openRejectReasonModal && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.5)] p-4">
+					<div className="bg-white rounded-2xl shadow-lg p-6 w-full max-w-md">
+						{/* Header */}
+						<div className="flex items-center gap-3 mb-4">
+							<div className="bg-rose-100 p-2 rounded-full">
+								<OctagonX size={24} className="text-rose-600" />
+							</div>
+							<div>
+								<h3 className="text-lg font-bold text-slate-900">Reject Document</h3>
+								<p className="text-xs text-slate-500">Please provide a reason for rejection</p>
+							</div>
+						</div>
+
+						{/* Document Info */}
+						<div className="bg-slate-50 rounded-lg p-3 mb-4">
+							<p className="text-xs text-slate-500 mb-1">Document Reference</p>
+							<p className="text-sm font-medium text-slate-900">{vehicle_query.data?.documents?.reference_number}</p>
+						</div>
+
+						{/* Reason Textarea */}
+						<div className="mb-4">
+							<label className="block text-sm font-medium text-slate-900 mb-2">Rejection Reason *</label>
+							<textarea
+								value={rejectReason}
+								onChange={(e) => setRejectReason(e.target.value)}
+								placeholder="Enter the reason for rejecting this document..."
+								className="w-full h-32 px-4 py-3 text-sm text-slate-900 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 resize-none"
+								maxLength={500}
+							/>
+							<div className="flex justify-between items-center mt-1">
+								<p className="text-xs text-slate-400">Be specific about what needs to be corrected</p>
+								<p className="text-xs text-slate-400">{rejectReason.length}/500</p>
+							</div>
+						</div>
+
+						{/* Warning */}
+						<div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-6">
+							<p className="text-xs text-amber-800">
+								<span className="font-semibold">Note:</span> The owner will be notified and will need to resubmit corrected documents.
+							</p>
+						</div>
+
+						{/* Action Buttons */}
+						<div className="flex flex-col-reverse sm:flex-row gap-2">
+							<button
+								className="flex-1 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-full py-2.5 px-4 transition-colors"
+								onClick={() => {
+									setOpenRejectReasonModal(false);
+									setRejectReason('');
+								}}
+							>
+								Cancel
+							</button>
+							<button
+								className="flex-1 text-sm font-medium text-white bg-slate-600 hover:bg-slate-700 rounded-full py-2.5 px-4 transition-colors disabled:bg-slate-300 disabled:cursor-not-allowed"
+								disabled={rejectReason.trim().length < 10}
+								onClick={() => {
+									verdictBtn({
+										car_id: vehicle_query.data?.id,
+										document_id: vehicle_query.data?.documents?.id,
+										verdict: 'REJECTED',
+									});
+									setOpenRejectReasonModal(false);
+									setRejectReason('');
+								}}
+							>
+								Confirm Rejection
+							</button>
+						</div>
 					</div>
 				</div>
 			)}

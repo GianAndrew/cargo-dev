@@ -5,7 +5,7 @@ import { useAxios } from '@/hooks/useAxios';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
 import dayjs from 'dayjs';
-import { ChevronLeft, ChevronRight, Frown, Search } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Frown, OctagonX, Search } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -121,6 +121,8 @@ const OwnerDetails = () => {
 	const [search, setSearch] = useState<string>('');
 
 	const [openDocumentModal, setOpenDocumentModal] = useState<boolean>(false);
+	const [openDocumentReasonModal, setOpenDocumentReasonModal] = useState<boolean>(false);
+	const [documentRejectReason, setDocumentRejectReason] = useState<string>('');
 
 	const [openDisableModal, setOpenDisableModal] = useState<boolean>(false);
 	const [disableReason, setDisableReason] = useState<string>('');
@@ -150,7 +152,7 @@ const OwnerDetails = () => {
 
 	const verdict_mutation = useMutation({
 		mutationFn: async (data: { owner_id: number | undefined; document_id: number | undefined; verdict: 'APPROVED' | 'REJECTED' }) => {
-			const response = await api.post(`/api/admin/owners/${data.owner_id}/documents/${data.document_id}/verdict`, { verdict: data.verdict });
+			const response = await api.post(`/api/admin/owners/${data.owner_id}/documents/${data.document_id}/verdict`, { verdict: data.verdict, reason_reject: documentRejectReason });
 			return response.data;
 		},
 		onSuccess: () => {
@@ -561,7 +563,10 @@ const OwnerDetails = () => {
 								</button>
 								<button
 									className="w-full text-xs text-slate-900 bg-slate-50 rounded-full py-2 px-3"
-									onClick={() => verdictBtn({ owner_id: owner_query.data?.id, document_id: owner_query.data?.documents?.id, verdict: 'REJECTED' })}
+									onClick={() => {
+										setOpenDocumentModal(false);
+										setOpenDocumentReasonModal(true);
+									}}
 								>
 									Reject
 								</button>
@@ -571,6 +576,82 @@ const OwnerDetails = () => {
 						<button className="text-xs font-medium cursor-pointer w-full flex items-center justify-center text-slate-900" onClick={() => setOpenDocumentModal(false)}>
 							Close
 						</button>
+					</div>
+				</div>
+			)}
+
+			{/* document reason modal */}
+			{openDocumentReasonModal && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.5)] p-4">
+					<div className="bg-white rounded-2xl shadow-lg p-6 w-full max-w-md">
+						{/* Header */}
+						<div className="flex items-center gap-3 mb-4">
+							<div className="bg-rose-100 p-2 rounded-full">
+								<OctagonX size={24} className="text-rose-600" />
+							</div>
+							<div>
+								<h3 className="text-lg font-bold text-slate-900">Reject Document</h3>
+								<p className="text-xs text-slate-500">Please provide a reason for rejection</p>
+							</div>
+						</div>
+
+						{/* Owner Info */}
+						<div className="bg-slate-50 rounded-lg p-3 mb-4">
+							<p className="text-xs text-slate-500 mb-1">Owner</p>
+							<p className="text-sm font-medium text-slate-900">{owner_query.data?.car_rental_name}</p>
+							<p className="text-xs text-slate-400 mt-1">Ref No: {owner_query.data?.documents?.reference_number}</p>
+						</div>
+
+						{/* Reason Textarea */}
+						<div className="mb-4">
+							<label className="block text-sm font-medium text-slate-900 mb-2">Rejection Reason *</label>
+							<textarea
+								value={documentRejectReason}
+								onChange={(e) => setDocumentRejectReason(e.target.value)}
+								placeholder="Enter the reason for rejecting this document..."
+								className="w-full h-32 px-4 py-3 text-sm text-slate-900 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 resize-none"
+								maxLength={500}
+							/>
+							<div className="flex justify-between items-center mt-1">
+								<p className="text-xs text-slate-400">Be specific about what needs to be corrected</p>
+								<p className="text-xs text-slate-400">{documentRejectReason.length}/500</p>
+							</div>
+						</div>
+
+						{/* Warning */}
+						<div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-6">
+							<p className="text-xs text-amber-800">
+								<span className="font-semibold">Note:</span> The owner will be notified and will need to resubmit corrected documents.
+							</p>
+						</div>
+
+						{/* Action Buttons */}
+						<div className="flex flex-col-reverse sm:flex-row gap-2">
+							<button
+								className="flex-1 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-full py-2.5 px-4 transition-colors"
+								onClick={() => {
+									setOpenDocumentReasonModal(false);
+									setDocumentRejectReason('');
+								}}
+							>
+								Cancel
+							</button>
+							<button
+								className="flex-1 text-sm font-medium text-white bg-slate-600 hover:bg-slate-700 rounded-full py-2.5 px-4 transition-colors disabled:bg-slate-300 disabled:cursor-not-allowed"
+								disabled={documentRejectReason.trim().length < 10}
+								onClick={() => {
+									verdictBtn({
+										owner_id: owner_query.data?.id,
+										document_id: owner_query.data?.documents?.id,
+										verdict: 'REJECTED',
+									});
+									setOpenDocumentReasonModal(false);
+									setDocumentRejectReason('');
+								}}
+							>
+								Confirm Rejection
+							</button>
+						</div>
 					</div>
 				</div>
 			)}

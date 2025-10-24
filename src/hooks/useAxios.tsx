@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const BASE_URL = 'https://api.cargorental.me';
+// const BASE_URL = 'http://localhost:3000';
 
 const useAxios = () => {
 	const token_session = sessionStorage.getItem('token');
